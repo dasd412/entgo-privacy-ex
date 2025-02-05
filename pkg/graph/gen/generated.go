@@ -53,7 +53,7 @@ type ComplexityRoot struct {
 		CreatePost func(childComplexity int, input ent.CreatePostInput) int
 		DeletePost func(childComplexity int, id int) int
 		SignIn     func(childComplexity int, username string, password string) int
-		SignUp     func(childComplexity int, username string, password string) int
+		Signup     func(childComplexity int, input ent.CreateUserInput) int
 		UpdatePost func(childComplexity int, id int, input ent.UpdatePostInput) int
 	}
 
@@ -121,7 +121,7 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	SignUp(ctx context.Context, username string, password string) (bool, error)
+	Signup(ctx context.Context, input ent.CreateUserInput) (*ent.User, error)
 	SignIn(ctx context.Context, username string, password string) (string, error)
 	CreatePost(ctx context.Context, input ent.CreatePostInput) (*ent.Post, error)
 	UpdatePost(ctx context.Context, id int, input ent.UpdatePostInput) (*ent.Post, error)
@@ -191,17 +191,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.SignIn(childComplexity, args["username"].(string), args["password"].(string)), true
 
-	case "Mutation.signUp":
-		if e.complexity.Mutation.SignUp == nil {
+	case "Mutation.signup":
+		if e.complexity.Mutation.Signup == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_signUp_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_signup_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.SignUp(childComplexity, args["username"].(string), args["password"].(string)), true
+		return e.complexity.Mutation.Signup(childComplexity, args["input"].(ent.CreateUserInput)), true
 
 	case "Mutation.updatePost":
 		if e.complexity.Mutation.UpdatePost == nil {
@@ -1093,7 +1093,7 @@ input UserWhereInput {
 }
 `, BuiltIn: false},
 	{Name: "../schema.graphql", Input: `type Mutation {
-    signUp(username: String!, password: String!):Boolean!
+    signup(input: CreateUserInput!): User!
     signIn(username: String!, password: String!): String!
 
     createPost(input: CreatePostInput!): Post! #  기본적으로 모든 사용자가 생성 가능
@@ -1237,54 +1237,31 @@ func (ec *executionContext) field_Mutation_signIn_argsPassword(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Mutation_signUp_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func (ec *executionContext) field_Mutation_signup_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := ec.field_Mutation_signUp_argsUsername(ctx, rawArgs)
+	arg0, err := ec.field_Mutation_signup_argsInput(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
-	args["username"] = arg0
-	arg1, err := ec.field_Mutation_signUp_argsPassword(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["password"] = arg1
+	args["input"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Mutation_signUp_argsUsername(
+func (ec *executionContext) field_Mutation_signup_argsInput(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (string, error) {
-	if _, ok := rawArgs["username"]; !ok {
-		var zeroVal string
+) (ent.CreateUserInput, error) {
+	if _, ok := rawArgs["input"]; !ok {
+		var zeroVal ent.CreateUserInput
 		return zeroVal, nil
 	}
 
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
-	if tmp, ok := rawArgs["username"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+	if tmp, ok := rawArgs["input"]; ok {
+		return ec.unmarshalNCreateUserInput2privacyᚑexᚋpkgᚋentᚐCreateUserInput(ctx, tmp)
 	}
 
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_signUp_argsPassword(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (string, error) {
-	if _, ok := rawArgs["password"]; !ok {
-		var zeroVal string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-	if tmp, ok := rawArgs["password"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
+	var zeroVal ent.CreateUserInput
 	return zeroVal, nil
 }
 
@@ -1839,8 +1816,8 @@ func (ec *executionContext) field___Type_fields_argsIncludeDeprecated(
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Mutation_signUp(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_signUp(ctx, field)
+func (ec *executionContext) _Mutation_signup(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_signup(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1853,7 +1830,7 @@ func (ec *executionContext) _Mutation_signUp(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SignUp(rctx, fc.Args["username"].(string), fc.Args["password"].(string))
+		return ec.resolvers.Mutation().Signup(rctx, fc.Args["input"].(ent.CreateUserInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1865,19 +1842,33 @@ func (ec *executionContext) _Mutation_signUp(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(*ent.User)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖprivacyᚑexᚋpkgᚋentᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_signUp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_signup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "password":
+				return ec.fieldContext_User_password(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "posts":
+				return ec.fieldContext_User_posts(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
 	}
 	defer func() {
@@ -1887,7 +1878,7 @@ func (ec *executionContext) fieldContext_Mutation_signUp(ctx context.Context, fi
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_signUp_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_signup_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -7081,9 +7072,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "signUp":
+		case "signup":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_signUp(ctx, field)
+				return ec._Mutation_signup(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -8142,6 +8133,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 
 func (ec *executionContext) unmarshalNCreatePostInput2privacyᚑexᚋpkgᚋentᚐCreatePostInput(ctx context.Context, v any) (ent.CreatePostInput, error) {
 	res, err := ec.unmarshalInputCreatePostInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNCreateUserInput2privacyᚑexᚋpkgᚋentᚐCreateUserInput(ctx context.Context, v any) (ent.CreateUserInput, error) {
+	res, err := ec.unmarshalInputCreateUserInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

@@ -6,18 +6,17 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 	"privacy-ex/pkg/ent"
 	"privacy-ex/pkg/graph/gen"
 )
 
-// SignUp is the resolver for the signUp field.
-func (r *mutationResolver) SignUp(
+// Signup is the resolver for the signup field.
+func (r *mutationResolver) Signup(
 	ctx context.Context,
-	username string,
-	password string,
-) (bool, error) {
-	panic(fmt.Errorf("not implemented: SignUp - signUp"))
+	input ent.CreateUserInput,
+) (*ent.User, error) {
+	entClient := ent.FromContext(ctx)
+	return r.userService.Signup(ctx, entClient, input)
 }
 
 // SignIn is the resolver for the signIn field.
@@ -26,7 +25,8 @@ func (r *mutationResolver) SignIn(
 	username string,
 	password string,
 ) (string, error) {
-	panic(fmt.Errorf("not implemented: SignIn - signIn"))
+	entClient := ent.FromContext(ctx)
+	return r.userService.SignIn(ctx, entClient, username, password)
 }
 
 // CreatePost is the resolver for the createPost field.
@@ -35,7 +35,8 @@ func (r *mutationResolver) CreatePost(
 	input ent.CreatePostInput,
 ) (*ent.Post, error) {
 	// 기본적으로 모든 사용자가 생성 가능
-	panic(fmt.Errorf("not implemented: CreatePost - createPost"))
+	entClient := ent.FromContext(ctx)
+	return r.postService.CreatePost(ctx, entClient, input)
 }
 
 // UpdatePost is the resolver for the updatePost field.
@@ -45,7 +46,8 @@ func (r *mutationResolver) UpdatePost(
 	input ent.UpdatePostInput,
 ) (*ent.Post, error) {
 	//작성자만 수정 가능
-	panic(fmt.Errorf("not implemented: UpdatePost - updatePost"))
+	entClient := ent.FromContext(ctx)
+	return r.postService.UpdatePost(ctx, entClient, id, input)
 }
 
 // DeletePost is the resolver for the deletePost field.
@@ -54,18 +56,19 @@ func (r *mutationResolver) DeletePost(ctx context.Context, id int) (
 	error,
 ) {
 	//관리자, 작성자만 삭제 가능
-	panic(fmt.Errorf("not implemented: DeletePost - deletePost"))
+	entClient := ent.FromContext(ctx)
+	return r.postService.DeletePost(ctx, entClient, id)
 }
 
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, id int) (*ent.User, error) {
-	panic(fmt.Errorf("not implemented: User - user"))
+	return r.userService.FindUser(ctx, r.entClient, id)
 }
 
 // Post is the resolver for the post field.
 func (r *queryResolver) Post(ctx context.Context, id int) (*ent.Post, error) {
 	//  기본적으로 모든 사용자가 조회 가능
-	panic(fmt.Errorf("not implemented: Post - post"))
+	return r.postService.FindPost(ctx, r.entClient, id)
 }
 
 // Mutation returns gen.MutationResolver implementation.

@@ -11,6 +11,7 @@ import (
 	"privacy-ex/pkg/ent"
 	"privacy-ex/pkg/graph/resolver"
 	"strconv"
+	"time"
 )
 
 func main() {
@@ -19,6 +20,14 @@ func main() {
 	client, err := ent.Open(
 		"sqlite3",
 		"file:ent?mode=memory&cache=shared&_fk=1",
+		ent.Debug(),
+		ent.Log(
+			func(argument ...any) {
+				start := time.Now()
+				duration := time.Since(start)
+				log.Printf("took: %v , entgo: %v ", duration, argument)
+			},
+		),
 	)
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)

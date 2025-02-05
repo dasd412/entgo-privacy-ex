@@ -1,5 +1,5 @@
 type Mutation {
-    signUp(username: String!, password: String!):Boolean!
+    signup(input: CreateUserInput!): User!
     signIn(username: String!, password: String!): String!
 
     createPost(input: CreatePostInput!): Post! #  기본적으로 모든 사용자가 생성 가능
