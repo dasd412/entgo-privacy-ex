@@ -25,7 +25,6 @@ func main() {
 	opts := []entc.Option{
 		entc.Extensions(
 			ex,
-			entProtoExtension,
 		),
 	}
 	if err := entc.Generate("./schema", &gen.Config{}, opts...); err != nil {
