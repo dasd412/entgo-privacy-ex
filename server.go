@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"privacy-ex/pkg/ent"
+	_ "privacy-ex/pkg/ent/runtime"
 	"privacy-ex/pkg/graph/resolver"
 	"strconv"
 	"time"

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"privacy-ex/pkg/ent"
+	"privacy-ex/pkg/ent/post"
 )
 
 type (
@@ -41,8 +42,9 @@ func (p postService) FindPost(
 	client *ent.Client,
 	id int,
 ) (*ent.Post, error) {
-	//TODO implement me
-	panic("implement me")
+	return client.Post.Query().
+		Where(post.ID(id)).
+		Only(ctx)
 }
 
 func (p postService) CreatePost(
