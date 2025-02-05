@@ -1,10 +1,13 @@
 type Mutation {
-    requestAccessToken(username: String!, password: String!): String!
-    verifyAccessToken(token: String!): Boolean!
-    requestRefreshToken(id: ID!): String!
-    verifyRefreshToken(token: String!): Boolean!
+    signUp(username: String!, password: String!):Boolean!
+    signIn(username: String!, password: String!): String!
+
+    createPost(input: CreatePostInput!): Post! #  기본적으로 모든 사용자가 생성 가능
+    updatePost(id: ID!, input: UpdatePostInput!): Post! # 작성자만 수정 가능
+    deletePost(id: ID!): Boolean! # 관리자, 작성자만 삭제 가능
 }
 
 extend type Query {
     user(id: ID!): User!
+    post(id:ID!): Post!  # 기본적으로 모든 사용자가 조회 가능
 }

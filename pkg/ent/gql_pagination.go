@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"privacy-ex/pkg/ent/post"
 	"privacy-ex/pkg/ent/user"
 
 	"entgo.io/contrib/entgql"
@@ -94,6 +95,291 @@ func paginateLimit(first, last *int) int {
 		limit = *last + 1
 	}
 	return limit
+}
+
+// PostEdge is the edge representation of Post.
+type PostEdge struct {
+	Node   *Post  `json:"node"`
+	Cursor Cursor `json:"cursor"`
+}
+
+// PostConnection is the connection containing edges to Post.
+type PostConnection struct {
+	Edges      []*PostEdge `json:"edges"`
+	PageInfo   PageInfo    `json:"pageInfo"`
+	TotalCount int         `json:"totalCount"`
+}
+
+func (c *PostConnection) build(nodes []*Post, pager *postPager, after *Cursor, first *int, before *Cursor, last *int) {
+	c.PageInfo.HasNextPage = before != nil
+	c.PageInfo.HasPreviousPage = after != nil
+	if first != nil && *first+1 == len(nodes) {
+		c.PageInfo.HasNextPage = true
+		nodes = nodes[:len(nodes)-1]
+	} else if last != nil && *last+1 == len(nodes) {
+		c.PageInfo.HasPreviousPage = true
+		nodes = nodes[:len(nodes)-1]
+	}
+	var nodeAt func(int) *Post
+	if last != nil {
+		n := len(nodes) - 1
+		nodeAt = func(i int) *Post {
+			return nodes[n-i]
+		}
+	} else {
+		nodeAt = func(i int) *Post {
+			return nodes[i]
+		}
+	}
+	c.Edges = make([]*PostEdge, len(nodes))
+	for i := range nodes {
+		node := nodeAt(i)
+		c.Edges[i] = &PostEdge{
+			Node:   node,
+			Cursor: pager.toCursor(node),
+		}
+	}
+	if l := len(c.Edges); l > 0 {
+		c.PageInfo.StartCursor = &c.Edges[0].Cursor
+		c.PageInfo.EndCursor = &c.Edges[l-1].Cursor
+	}
+	if c.TotalCount == 0 {
+		c.TotalCount = len(nodes)
+	}
+}
+
+// PostPaginateOption enables pagination customization.
+type PostPaginateOption func(*postPager) error
+
+// WithPostOrder configures pagination ordering.
+func WithPostOrder(order []*PostOrder) PostPaginateOption {
+	return func(pager *postPager) error {
+		for _, o := range order {
+			if err := o.Direction.Validate(); err != nil {
+				return err
+			}
+		}
+		pager.order = append(pager.order, order...)
+		return nil
+	}
+}
+
+// WithPostFilter configures pagination filter.
+func WithPostFilter(filter func(*PostQuery) (*PostQuery, error)) PostPaginateOption {
+	return func(pager *postPager) error {
+		if filter == nil {
+			return errors.New("PostQuery filter cannot be nil")
+		}
+		pager.filter = filter
+		return nil
+	}
+}
+
+type postPager struct {
+	reverse bool
+	order   []*PostOrder
+	filter  func(*PostQuery) (*PostQuery, error)
+}
+
+func newPostPager(opts []PostPaginateOption, reverse bool) (*postPager, error) {
+	pager := &postPager{reverse: reverse}
+	for _, opt := range opts {
+		if err := opt(pager); err != nil {
+			return nil, err
+		}
+	}
+	for i, o := range pager.order {
+		if i > 0 && o.Field == pager.order[i-1].Field {
+			return nil, fmt.Errorf("duplicate order direction %q", o.Direction)
+		}
+	}
+	return pager, nil
+}
+
+func (p *postPager) applyFilter(query *PostQuery) (*PostQuery, error) {
+	if p.filter != nil {
+		return p.filter(query)
+	}
+	return query, nil
+}
+
+func (p *postPager) toCursor(po *Post) Cursor {
+	cs_ := make([]any, 0, len(p.order))
+	for _, o_ := range p.order {
+		cs_ = append(cs_, o_.Field.toCursor(po).Value)
+	}
+	return Cursor{ID: po.ID, Value: cs_}
+}
+
+func (p *postPager) applyCursors(query *PostQuery, after, before *Cursor) (*PostQuery, error) {
+	idDirection := entgql.OrderDirectionAsc
+	if p.reverse {
+		idDirection = entgql.OrderDirectionDesc
+	}
+	fields, directions := make([]string, 0, len(p.order)), make([]OrderDirection, 0, len(p.order))
+	for _, o := range p.order {
+		fields = append(fields, o.Field.column)
+		direction := o.Direction
+		if p.reverse {
+			direction = direction.Reverse()
+		}
+		directions = append(directions, direction)
+	}
+	predicates, err := entgql.MultiCursorsPredicate(after, before, &entgql.MultiCursorsOptions{
+		FieldID:     DefaultPostOrder.Field.column,
+		DirectionID: idDirection,
+		Fields:      fields,
+		Directions:  directions,
+	})
+	if err != nil {
+		return nil, err
+	}
+	for _, predicate := range predicates {
+		query = query.Where(predicate)
+	}
+	return query, nil
+}
+
+func (p *postPager) applyOrder(query *PostQuery) *PostQuery {
+	var defaultOrdered bool
+	for _, o := range p.order {
+		direction := o.Direction
+		if p.reverse {
+			direction = direction.Reverse()
+		}
+		query = query.Order(o.Field.toTerm(direction.OrderTermOption()))
+		if o.Field.column == DefaultPostOrder.Field.column {
+			defaultOrdered = true
+		}
+		if len(query.ctx.Fields) > 0 {
+			query.ctx.AppendFieldOnce(o.Field.column)
+		}
+	}
+	if !defaultOrdered {
+		direction := entgql.OrderDirectionAsc
+		if p.reverse {
+			direction = direction.Reverse()
+		}
+		query = query.Order(DefaultPostOrder.Field.toTerm(direction.OrderTermOption()))
+	}
+	return query
+}
+
+func (p *postPager) orderExpr(query *PostQuery) sql.Querier {
+	if len(query.ctx.Fields) > 0 {
+		for _, o := range p.order {
+			query.ctx.AppendFieldOnce(o.Field.column)
+		}
+	}
+	return sql.ExprFunc(func(b *sql.Builder) {
+		for _, o := range p.order {
+			direction := o.Direction
+			if p.reverse {
+				direction = direction.Reverse()
+			}
+			b.Ident(o.Field.column).Pad().WriteString(string(direction))
+			b.Comma()
+		}
+		direction := entgql.OrderDirectionAsc
+		if p.reverse {
+			direction = direction.Reverse()
+		}
+		b.Ident(DefaultPostOrder.Field.column).Pad().WriteString(string(direction))
+	})
+}
+
+// Paginate executes the query and returns a relay based cursor connection to Post.
+func (po *PostQuery) Paginate(
+	ctx context.Context, after *Cursor, first *int,
+	before *Cursor, last *int, opts ...PostPaginateOption,
+) (*PostConnection, error) {
+	if err := validateFirstLast(first, last); err != nil {
+		return nil, err
+	}
+	pager, err := newPostPager(opts, last != nil)
+	if err != nil {
+		return nil, err
+	}
+	if po, err = pager.applyFilter(po); err != nil {
+		return nil, err
+	}
+	conn := &PostConnection{Edges: []*PostEdge{}}
+	ignoredEdges := !hasCollectedField(ctx, edgesField)
+	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
+		hasPagination := after != nil || first != nil || before != nil || last != nil
+		if hasPagination || ignoredEdges {
+			c := po.Clone()
+			c.ctx.Fields = nil
+			if conn.TotalCount, err = c.Count(ctx); err != nil {
+				return nil, err
+			}
+			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
+			conn.PageInfo.HasPreviousPage = last != nil && conn.TotalCount > 0
+		}
+	}
+	if ignoredEdges || (first != nil && *first == 0) || (last != nil && *last == 0) {
+		return conn, nil
+	}
+	if po, err = pager.applyCursors(po, after, before); err != nil {
+		return nil, err
+	}
+	limit := paginateLimit(first, last)
+	if limit != 0 {
+		po.Limit(limit)
+	}
+	if field := collectedField(ctx, edgesField, nodeField); field != nil {
+		if err := po.collectField(ctx, limit == 1, graphql.GetOperationContext(ctx), *field, []string{edgesField, nodeField}); err != nil {
+			return nil, err
+		}
+	}
+	po = pager.applyOrder(po)
+	nodes, err := po.All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	conn.build(nodes, pager, after, first, before, last)
+	return conn, nil
+}
+
+// PostOrderField defines the ordering field of Post.
+type PostOrderField struct {
+	// Value extracts the ordering value from the given Post.
+	Value    func(*Post) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) post.OrderOption
+	toCursor func(*Post) Cursor
+}
+
+// PostOrder defines the ordering of Post.
+type PostOrder struct {
+	Direction OrderDirection  `json:"direction"`
+	Field     *PostOrderField `json:"field"`
+}
+
+// DefaultPostOrder is the default ordering of Post.
+var DefaultPostOrder = &PostOrder{
+	Direction: entgql.OrderDirectionAsc,
+	Field: &PostOrderField{
+		Value: func(po *Post) (ent.Value, error) {
+			return po.ID, nil
+		},
+		column: post.FieldID,
+		toTerm: post.ByID,
+		toCursor: func(po *Post) Cursor {
+			return Cursor{ID: po.ID}
+		},
+	},
+}
+
+// ToEdge converts Post into PostEdge.
+func (po *Post) ToEdge(order *PostOrder) *PostEdge {
+	if order == nil {
+		order = DefaultPostOrder
+	}
+	return &PostEdge{
+		Node:   po,
+		Cursor: order.Field.toCursor(po),
+	}
 }
 
 // UserEdge is the edge representation of User.

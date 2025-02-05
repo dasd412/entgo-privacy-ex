@@ -19,12 +19,35 @@ func (r *queryResolver) Node(ctx context.Context, id int) (ent.Noder, error) {
 }
 
 // Nodes is the resolver for the nodes field.
-func (r *queryResolver) Nodes(ctx context.Context, ids []int) ([]ent.Noder, error) {
+func (r *queryResolver) Nodes(ctx context.Context, ids []int) (
+	[]ent.Noder,
+	error,
+) {
 	panic(fmt.Errorf("not implemented: Nodes - nodes"))
 }
 
+// Posts is the resolver for the posts field.
+func (r *queryResolver) Posts(
+	ctx context.Context,
+	after *entgql.Cursor[int],
+	first *int,
+	before *entgql.Cursor[int],
+	last *int,
+	where *ent.PostWhereInput,
+) (*ent.PostConnection, error) {
+	//  기본적으로 모든 사용자가 조회 가능
+	panic(fmt.Errorf("not implemented: Posts - posts"))
+}
+
 // Users is the resolver for the users field.
-func (r *queryResolver) Users(ctx context.Context, after *entgql.Cursor[int], first *int, before *entgql.Cursor[int], last *int, where *ent.UserWhereInput) (*ent.UserConnection, error) {
+func (r *queryResolver) Users(
+	ctx context.Context,
+	after *entgql.Cursor[int],
+	first *int,
+	before *entgql.Cursor[int],
+	last *int,
+	where *ent.UserWhereInput,
+) (*ent.UserConnection, error) {
 	panic(fmt.Errorf("not implemented: Users - users"))
 }
 

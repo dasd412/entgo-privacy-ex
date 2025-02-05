@@ -11,29 +11,61 @@ import (
 	"privacy-ex/pkg/graph/gen"
 )
 
-// RequestAccessToken is the resolver for the requestAccessToken field.
-func (r *mutationResolver) RequestAccessToken(ctx context.Context, username string, password string) (string, error) {
-	panic(fmt.Errorf("not implemented: RequestAccessToken - requestAccessToken"))
+// SignUp is the resolver for the signUp field.
+func (r *mutationResolver) SignUp(
+	ctx context.Context,
+	username string,
+	password string,
+) (bool, error) {
+	panic(fmt.Errorf("not implemented: SignUp - signUp"))
 }
 
-// VerifyAccessToken is the resolver for the verifyAccessToken field.
-func (r *mutationResolver) VerifyAccessToken(ctx context.Context, token string) (bool, error) {
-	panic(fmt.Errorf("not implemented: VerifyAccessToken - verifyAccessToken"))
+// SignIn is the resolver for the signIn field.
+func (r *mutationResolver) SignIn(
+	ctx context.Context,
+	username string,
+	password string,
+) (string, error) {
+	panic(fmt.Errorf("not implemented: SignIn - signIn"))
 }
 
-// RequestRefreshToken is the resolver for the requestRefreshToken field.
-func (r *mutationResolver) RequestRefreshToken(ctx context.Context, id int) (string, error) {
-	panic(fmt.Errorf("not implemented: RequestRefreshToken - requestRefreshToken"))
+// CreatePost is the resolver for the createPost field.
+func (r *mutationResolver) CreatePost(
+	ctx context.Context,
+	input ent.CreatePostInput,
+) (*ent.Post, error) {
+	// 기본적으로 모든 사용자가 생성 가능
+	panic(fmt.Errorf("not implemented: CreatePost - createPost"))
 }
 
-// VerifyRefreshToken is the resolver for the verifyRefreshToken field.
-func (r *mutationResolver) VerifyRefreshToken(ctx context.Context, token string) (bool, error) {
-	panic(fmt.Errorf("not implemented: VerifyRefreshToken - verifyRefreshToken"))
+// UpdatePost is the resolver for the updatePost field.
+func (r *mutationResolver) UpdatePost(
+	ctx context.Context,
+	id int,
+	input ent.UpdatePostInput,
+) (*ent.Post, error) {
+	//작성자만 수정 가능
+	panic(fmt.Errorf("not implemented: UpdatePost - updatePost"))
+}
+
+// DeletePost is the resolver for the deletePost field.
+func (r *mutationResolver) DeletePost(ctx context.Context, id int) (
+	bool,
+	error,
+) {
+	//관리자, 작성자만 삭제 가능
+	panic(fmt.Errorf("not implemented: DeletePost - deletePost"))
 }
 
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, id int) (*ent.User, error) {
 	panic(fmt.Errorf("not implemented: User - user"))
+}
+
+// Post is the resolver for the post field.
+func (r *queryResolver) Post(ctx context.Context, id int) (*ent.Post, error) {
+	//  기본적으로 모든 사용자가 조회 가능
+	panic(fmt.Errorf("not implemented: Post - post"))
 }
 
 // Mutation returns gen.MutationResolver implementation.

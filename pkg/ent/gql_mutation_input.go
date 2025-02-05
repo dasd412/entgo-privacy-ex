@@ -6,17 +6,89 @@ import (
 	"time"
 )
 
+// CreatePostInput represents a mutation input for creating posts.
+type CreatePostInput struct {
+	Title     string
+	Content   string
+	CreatedAt *time.Time
+	UpdatedAt *time.Time
+	AuthorID  int
+}
+
+// Mutate applies the CreatePostInput on the PostMutation builder.
+func (i *CreatePostInput) Mutate(m *PostMutation) {
+	m.SetTitle(i.Title)
+	m.SetContent(i.Content)
+	if v := i.CreatedAt; v != nil {
+		m.SetCreatedAt(*v)
+	}
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	m.SetAuthorID(i.AuthorID)
+}
+
+// SetInput applies the change-set in the CreatePostInput on the PostCreate builder.
+func (c *PostCreate) SetInput(i CreatePostInput) *PostCreate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// UpdatePostInput represents a mutation input for updating posts.
+type UpdatePostInput struct {
+	Title     *string
+	Content   *string
+	UpdatedAt *time.Time
+	AuthorID  *int
+}
+
+// Mutate applies the UpdatePostInput on the PostMutation builder.
+func (i *UpdatePostInput) Mutate(m *PostMutation) {
+	if v := i.Title; v != nil {
+		m.SetTitle(*v)
+	}
+	if v := i.Content; v != nil {
+		m.SetContent(*v)
+	}
+	if v := i.UpdatedAt; v != nil {
+		m.SetUpdatedAt(*v)
+	}
+	if v := i.AuthorID; v != nil {
+		m.SetAuthorID(*v)
+	}
+}
+
+// SetInput applies the change-set in the UpdatePostInput on the PostUpdate builder.
+func (c *PostUpdate) SetInput(i UpdatePostInput) *PostUpdate {
+	i.Mutate(c.Mutation())
+	return c
+}
+
+// SetInput applies the change-set in the UpdatePostInput on the PostUpdateOne builder.
+func (c *PostUpdateOne) SetInput(i UpdatePostInput) *PostUpdateOne {
+	i.Mutate(c.Mutation())
+	return c
+}
+
 // CreateUserInput represents a mutation input for creating users.
 type CreateUserInput struct {
-	Nickname  string
+	Email     string
+	Password  string
+	Name      string
 	CreatedAt *time.Time
+	PostsID   *int
 }
 
 // Mutate applies the CreateUserInput on the UserMutation builder.
 func (i *CreateUserInput) Mutate(m *UserMutation) {
-	m.SetNickname(i.Nickname)
+	m.SetEmail(i.Email)
+	m.SetPassword(i.Password)
+	m.SetName(i.Name)
 	if v := i.CreatedAt; v != nil {
 		m.SetCreatedAt(*v)
+	}
+	if v := i.PostsID; v != nil {
+		m.SetPostsID(*v)
 	}
 }
 
@@ -28,13 +100,29 @@ func (c *UserCreate) SetInput(i CreateUserInput) *UserCreate {
 
 // UpdateUserInput represents a mutation input for updating users.
 type UpdateUserInput struct {
-	Nickname *string
+	Email      *string
+	Password   *string
+	Name       *string
+	ClearPosts bool
+	PostsID    *int
 }
 
 // Mutate applies the UpdateUserInput on the UserMutation builder.
 func (i *UpdateUserInput) Mutate(m *UserMutation) {
-	if v := i.Nickname; v != nil {
-		m.SetNickname(*v)
+	if v := i.Email; v != nil {
+		m.SetEmail(*v)
+	}
+	if v := i.Password; v != nil {
+		m.SetPassword(*v)
+	}
+	if v := i.Name; v != nil {
+		m.SetName(*v)
+	}
+	if i.ClearPosts {
+		m.ClearPosts()
+	}
+	if v := i.PostsID; v != nil {
+		m.SetPostsID(*v)
 	}
 }
 
