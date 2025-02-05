@@ -1,0 +1,10 @@
+type Mutation {
+    requestAccessToken(username: String!, password: String!): String!
+    verifyAccessToken(token: String!): Boolean!
+    requestRefreshToken(id: ID!): String!
+    verifyRefreshToken(token: String!): Boolean!
+}
+
+extend type Query {
+    user(id: ID!): User!
+}
