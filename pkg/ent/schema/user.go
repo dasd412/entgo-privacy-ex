@@ -18,7 +18,8 @@ type User struct {
 func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("email").
-			Comment("이메일"),
+			Comment("이메일").
+			Unique(),
 		field.String("password").
 			Comment("해시화된 비밀 번호"),
 		field.String("name").
