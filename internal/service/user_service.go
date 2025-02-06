@@ -105,5 +105,39 @@ func (s *userService) Login(
 	email string,
 	password string,
 ) (*graphqlmodel.AuthPayload, error) {
-	return nil, nil
+	found, err := s.userRepository.FindOne(
+		ctx, client, func(query *ent.UserQuery) {
+			query.Where(user.EmailEQ(email))
+		},
+	)
+
+	if err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	// 입력된 비밀번호화 해시화된 거 비교
+	if err := s.checkPassword(found.Password, password); err != nil {
+		return nil, errors.New("invalid password")
+	}
+
+	jwtTokenPair, err := auth.GenerateTokenPair(found.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &graphqlmodel.AuthPayload{
+		User:         found,
+		AccessToken:  jwtTokenPair.AccessToken,
+		RefreshToken: jwtTokenPair.RefreshToken,
+	}, nil
+}
+
+func (s *userService) checkPassword(
+	hashedPassword,
+	plainPassword string,
+) error {
+	return bcrypt.CompareHashAndPassword(
+		[]byte(hashedPassword),
+		[]byte(plainPassword),
+	)
 }
