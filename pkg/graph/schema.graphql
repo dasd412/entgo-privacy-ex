@@ -1,6 +1,6 @@
 type Mutation {
-    signup(input: CreateUserInput!): User!
-    signIn(username: String!, password: String!): String!
+    signup(input: CreateUserInput!): AuthPayload!
+    signIn(username: String!, password: String!): AuthPayload!
     refreshToken(refreshToken: String!): String!
 
     createPost(input: CreatePostInput!): Post! #  기본적으로 모든 사용자가 생성 가능
@@ -11,4 +11,10 @@ type Mutation {
 extend type Query {
     user(id: ID!): User!
     post(id:ID!): Post!  # 기본적으로 모든 사용자가 조회 가능
+}
+
+type AuthPayload{
+    user:User!
+    accessToken: String!
+    refreshToken: String!
 }

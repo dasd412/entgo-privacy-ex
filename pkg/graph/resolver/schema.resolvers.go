@@ -9,18 +9,17 @@ import (
 	"fmt"
 	"privacy-ex/pkg/ent"
 	"privacy-ex/pkg/graph/gen"
+	"privacy-ex/pkg/graph/gen/graphqlmodel"
 )
 
 // Signup is the resolver for the signup field.
-func (r *mutationResolver) Signup(ctx context.Context, input ent.CreateUserInput) (*ent.User, error) {
-	entClient := ent.FromContext(ctx)
-	return r.userService.Signup(ctx, entClient, input)
+func (r *mutationResolver) Signup(ctx context.Context, input ent.CreateUserInput) (*graphqlmodel.AuthPayload, error) {
+	panic(fmt.Errorf("not implemented: Signup - signup"))
 }
 
 // SignIn is the resolver for the signIn field.
-func (r *mutationResolver) SignIn(ctx context.Context, username string, password string) (string, error) {
-	entClient := ent.FromContext(ctx)
-	return r.userService.SignIn(ctx, entClient, username, password)
+func (r *mutationResolver) SignIn(ctx context.Context, username string, password string) (*graphqlmodel.AuthPayload, error) {
+	panic(fmt.Errorf("not implemented: SignIn - signIn"))
 }
 
 // RefreshToken is the resolver for the refreshToken field.
