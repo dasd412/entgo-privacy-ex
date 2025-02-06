@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"errors"
+	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"strconv"
 	"time"
@@ -48,4 +50,34 @@ func GenerateTokenPair(userId int) (*JwtTokenPair, error) {
 		AccessToken:  accessTokenString,
 		RefreshToken: refreshTokenString,
 	}, nil
+}
+
+func ValidateJwt(tokenString string, isRefresh bool) (*jwt.Token, error) {
+	var key []byte
+
+	if isRefresh {
+		key = refreshSecretKey
+	} else {
+		key = secretKey
+	}
+
+	token, err := jwt.Parse(
+		tokenString,
+		func(token *jwt.Token) (interface{}, error) {
+			// 서명 알고리즘 검증
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf(
+					"unexpected signing method: %v", token.Header["alg"],
+				)
+			}
+			// 비밀키 반환 (Access Token or Refresh Token에 따라 다름)
+			return key, nil
+		},
+	)
+
+	if err != nil || !token.Valid {
+		return nil, errors.New("invalid token")
+	}
+
+	return token, nil
 }
