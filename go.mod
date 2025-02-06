@@ -9,7 +9,9 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/mattn/go-sqlite3 v1.14.16
+	github.com/rs/cors v1.11.1
 	github.com/vektah/gqlparser/v2 v2.5.22
+	golang.org/x/crypto v0.0.0-20220517005047-85d78b3ac167
 	golang.org/x/sync v0.10.0
 )
 

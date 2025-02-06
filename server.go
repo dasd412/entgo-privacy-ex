@@ -6,6 +6,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/rs/cors"
 	"log"
 	"net/http"
 	"privacy-ex/pkg/ent"
@@ -48,7 +49,10 @@ func main() {
 	server := handler.NewDefaultServer(resolver.NewSchema(client))
 	server.Use(entgql.Transactioner{TxOpener: client})
 
+	corsWrapper := cors.AllowAll().Handler
+
 	http.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
+	http.Handle("/graphql", corsWrapper(server))
 
 	log.Printf("Connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))

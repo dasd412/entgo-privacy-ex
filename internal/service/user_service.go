@@ -2,7 +2,10 @@ package service
 
 import (
 	"context"
+	"errors"
+	"golang.org/x/crypto/bcrypt"
 	"privacy-ex/internal/repository"
+	"privacy-ex/pkg/auth"
 	"privacy-ex/pkg/ent"
 	"privacy-ex/pkg/ent/user"
 	"privacy-ex/pkg/graph/gen/graphqlmodel"
@@ -56,7 +59,44 @@ func (s *userService) Signup(
 	client *ent.Client,
 	input ent.CreateUserInput,
 ) (*graphqlmodel.AuthPayload, error) {
-	return nil, nil
+	hashedPassword, err := s.hashPassword(input.Password)
+
+	if err != nil {
+		return nil, errors.New("failed to hash password")
+	}
+
+	input.Password = hashedPassword
+
+	created, err := s.userRepository.CreateOne(ctx, client, input)
+
+	if err != nil {
+		return nil, err
+	}
+
+	jwtTokenPair, err := auth.GenerateTokenPair(created.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &graphqlmodel.AuthPayload{
+		User:         created,
+		AccessToken:  jwtTokenPair.AccessToken,
+		RefreshToken: jwtTokenPair.RefreshToken,
+	}, nil
+}
+
+func (s *userService) hashPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword(
+		[]byte(password),
+		bcrypt.DefaultCost,
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(hashedPassword), nil
 }
 
 func (s *userService) SignIn(
