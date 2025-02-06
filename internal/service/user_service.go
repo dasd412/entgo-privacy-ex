@@ -27,10 +27,10 @@ type (
 			client *ent.Client,
 			input ent.CreateUserInput,
 		) (*graphqlmodel.AuthPayload, error)
-		SignIn(
+		Login(
 			ctx context.Context,
 			client *ent.Client,
-			username string,
+			email string,
 			password string,
 		) (*graphqlmodel.AuthPayload, error)
 	}
@@ -99,10 +99,10 @@ func (s *userService) hashPassword(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-func (s *userService) SignIn(
+func (s *userService) Login(
 	ctx context.Context,
 	client *ent.Client,
-	username string,
+	email string,
 	password string,
 ) (*graphqlmodel.AuthPayload, error) {
 	return nil, nil

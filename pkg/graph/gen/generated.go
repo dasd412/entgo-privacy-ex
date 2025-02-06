@@ -59,8 +59,8 @@ type ComplexityRoot struct {
 	Mutation struct {
 		CreatePost   func(childComplexity int, input ent.CreatePostInput) int
 		DeletePost   func(childComplexity int, id int) int
+		Login        func(childComplexity int, email string, password string) int
 		RefreshToken func(childComplexity int, refreshToken string) int
-		SignIn       func(childComplexity int, username string, password string) int
 		Signup       func(childComplexity int, input ent.CreateUserInput) int
 		UpdatePost   func(childComplexity int, id int, input ent.UpdatePostInput) int
 	}
@@ -130,7 +130,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	Signup(ctx context.Context, input ent.CreateUserInput) (*graphqlmodel.AuthPayload, error)
-	SignIn(ctx context.Context, username string, password string) (*graphqlmodel.AuthPayload, error)
+	Login(ctx context.Context, email string, password string) (*graphqlmodel.AuthPayload, error)
 	RefreshToken(ctx context.Context, refreshToken string) (string, error)
 	CreatePost(ctx context.Context, input ent.CreatePostInput) (*ent.Post, error)
 	UpdatePost(ctx context.Context, id int, input ent.UpdatePostInput) (*ent.Post, error)
@@ -209,6 +209,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeletePost(childComplexity, args["id"].(int)), true
 
+	case "Mutation.login":
+		if e.complexity.Mutation.Login == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_login_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.Login(childComplexity, args["email"].(string), args["password"].(string)), true
+
 	case "Mutation.refreshToken":
 		if e.complexity.Mutation.RefreshToken == nil {
 			break
@@ -220,18 +232,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RefreshToken(childComplexity, args["refreshToken"].(string)), true
-
-	case "Mutation.signIn":
-		if e.complexity.Mutation.SignIn == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_signIn_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.SignIn(childComplexity, args["username"].(string), args["password"].(string)), true
 
 	case "Mutation.signup":
 		if e.complexity.Mutation.Signup == nil {
@@ -1136,7 +1136,7 @@ input UserWhereInput {
 `, BuiltIn: false},
 	{Name: "../schema.graphql", Input: `type Mutation {
     signup(input: CreateUserInput!): AuthPayload!
-    signIn(username: String!, password: String!): AuthPayload!
+    login(email: String!, password: String!): AuthPayload!
     refreshToken(refreshToken: String!): String!
 
     createPost(input: CreatePostInput!): Post! #  기본적으로 모든 사용자가 생성 가능
@@ -1235,6 +1235,57 @@ func (ec *executionContext) field_Mutation_deletePost_argsID(
 	return zeroVal, nil
 }
 
+func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Mutation_login_argsEmail(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["email"] = arg0
+	arg1, err := ec.field_Mutation_login_argsPassword(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["password"] = arg1
+	return args, nil
+}
+func (ec *executionContext) field_Mutation_login_argsEmail(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (string, error) {
+	if _, ok := rawArgs["email"]; !ok {
+		var zeroVal string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+	if tmp, ok := rawArgs["email"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Mutation_login_argsPassword(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (string, error) {
+	if _, ok := rawArgs["password"]; !ok {
+		var zeroVal string
+		return zeroVal, nil
+	}
+
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+	if tmp, ok := rawArgs["password"]; ok {
+		return ec.unmarshalNString2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
 func (ec *executionContext) field_Mutation_refreshToken_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -1256,57 +1307,6 @@ func (ec *executionContext) field_Mutation_refreshToken_argsRefreshToken(
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshToken"))
 	if tmp, ok := rawArgs["refreshToken"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_signIn_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := ec.field_Mutation_signIn_argsUsername(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["username"] = arg0
-	arg1, err := ec.field_Mutation_signIn_argsPassword(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["password"] = arg1
-	return args, nil
-}
-func (ec *executionContext) field_Mutation_signIn_argsUsername(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (string, error) {
-	if _, ok := rawArgs["username"]; !ok {
-		var zeroVal string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
-	if tmp, ok := rawArgs["username"]; ok {
-		return ec.unmarshalNString2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Mutation_signIn_argsPassword(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (string, error) {
-	if _, ok := rawArgs["password"]; !ok {
-		var zeroVal string
-		return zeroVal, nil
-	}
-
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-	if tmp, ok := rawArgs["password"]; ok {
 		return ec.unmarshalNString2string(ctx, tmp)
 	}
 
@@ -2102,8 +2102,8 @@ func (ec *executionContext) fieldContext_Mutation_signup(ctx context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_signIn(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_signIn(ctx, field)
+func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_login(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2116,7 +2116,7 @@ func (ec *executionContext) _Mutation_signIn(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SignIn(rctx, fc.Args["username"].(string), fc.Args["password"].(string))
+		return ec.resolvers.Mutation().Login(rctx, fc.Args["email"].(string), fc.Args["password"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2133,7 +2133,7 @@ func (ec *executionContext) _Mutation_signIn(ctx context.Context, field graphql.
 	return ec.marshalNAuthPayload2ᚖprivacyᚑexᚋpkgᚋgraphᚋgenᚋgraphqlmodelᚐAuthPayload(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_signIn(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2158,7 +2158,7 @@ func (ec *executionContext) fieldContext_Mutation_signIn(ctx context.Context, fi
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_signIn_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_login_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -7408,9 +7408,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "signIn":
+		case "login":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_signIn(ctx, field)
+				return ec._Mutation_login(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

@@ -21,14 +21,14 @@ func (r *mutationResolver) Signup(
 	return r.userService.Signup(ctx, entClient, input)
 }
 
-// SignIn is the resolver for the signIn field.
-func (r *mutationResolver) SignIn(
+// Login is the resolver for the login field.
+func (r *mutationResolver) Login(
 	ctx context.Context,
-	username string,
+	email string,
 	password string,
 ) (*graphqlmodel.AuthPayload, error) {
 	entClient := ent.FromContext(ctx)
-	return r.userService.SignIn(ctx, entClient, username, password)
+	return r.userService.Login(ctx, entClient, email, password)
 }
 
 // RefreshToken is the resolver for the refreshToken field.

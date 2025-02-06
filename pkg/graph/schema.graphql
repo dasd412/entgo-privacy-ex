@@ -1,6 +1,6 @@
 type Mutation {
     signup(input: CreateUserInput!): AuthPayload!
-    signIn(username: String!, password: String!): AuthPayload!
+    login(email: String!, password: String!): AuthPayload!
     refreshToken(refreshToken: String!): String!
 
     createPost(input: CreatePostInput!): Post! #  기본적으로 모든 사용자가 생성 가능
