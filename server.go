@@ -9,6 +9,7 @@ import (
 	"github.com/rs/cors"
 	"log"
 	"net/http"
+	"privacy-ex/pkg/auth"
 	"privacy-ex/pkg/ent"
 	_ "privacy-ex/pkg/ent/runtime"
 	"privacy-ex/pkg/graph/resolver"
@@ -52,7 +53,7 @@ func main() {
 	corsWrapper := cors.AllowAll().Handler
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
-	http.Handle("/graphql", corsWrapper(server))
+	http.Handle("/graphql", corsWrapper(auth.JWTMiddleware(server)))
 
 	log.Printf("Connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
