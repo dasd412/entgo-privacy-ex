@@ -2,12 +2,15 @@ package service
 
 import (
 	"context"
+	"privacy-ex/internal/repository"
 	"privacy-ex/pkg/ent"
 	"privacy-ex/pkg/ent/user"
+	"privacy-ex/pkg/graph/gen/graphqlmodel"
 )
 
 type (
 	userService struct {
+		userRepository repository.UserRepository
 	}
 
 	UserService interface {
@@ -20,18 +23,20 @@ type (
 			ctx context.Context,
 			client *ent.Client,
 			input ent.CreateUserInput,
-		) (*ent.User, error)
+		) (*graphqlmodel.AuthPayload, error)
 		SignIn(
 			ctx context.Context,
 			client *ent.Client,
 			username string,
 			password string,
-		) (string, error)
+		) (*graphqlmodel.AuthPayload, error)
 	}
 )
 
-func NewUserService() UserService {
-	return &userService{}
+func NewUserService(userRepository repository.UserRepository) UserService {
+	return &userService{
+		userRepository: userRepository,
+	}
 }
 
 func (s *userService) FindUser(
@@ -39,20 +44,19 @@ func (s *userService) FindUser(
 	client *ent.Client,
 	id int,
 ) (*ent.User, error) {
-	return client.User.Query().
-		Where(user.ID(id)).
-		Only(ctx)
+	return s.userRepository.FindOne(
+		ctx, client, func(query *ent.UserQuery) {
+			query.Where(user.ID(id))
+		},
+	)
 }
 
 func (s *userService) Signup(
 	ctx context.Context,
 	client *ent.Client,
 	input ent.CreateUserInput,
-) (*ent.User, error) {
-	return client.User.
-		Create().
-		SetInput(input).
-		Save(ctx)
+) (*graphqlmodel.AuthPayload, error) {
+	return nil, nil
 }
 
 func (s *userService) SignIn(
@@ -60,6 +64,6 @@ func (s *userService) SignIn(
 	client *ent.Client,
 	username string,
 	password string,
-) (string, error) {
-	return "", nil
+) (*graphqlmodel.AuthPayload, error) {
+	return nil, nil
 }

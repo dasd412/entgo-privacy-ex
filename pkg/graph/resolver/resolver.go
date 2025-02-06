@@ -2,6 +2,7 @@ package resolver
 
 import (
 	"github.com/99designs/gqlgen/graphql"
+	"privacy-ex/internal/repository"
 	"privacy-ex/internal/service"
 	"privacy-ex/pkg/ent"
 	"privacy-ex/pkg/graph/gen"
@@ -22,8 +23,8 @@ func NewSchema(entClient *ent.Client) graphql.ExecutableSchema {
 		gen.Config{
 			Resolvers: &Resolver{
 				entClient:   entClient,
-				userService: service.NewUserService(),
-				postService: service.NewPostService(),
+				userService: service.NewUserService(repository.NewUserRepository()),
+				postService: service.NewPostService(repository.NewPostRepository()),
 			},
 		},
 	)
