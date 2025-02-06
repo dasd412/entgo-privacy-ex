@@ -1,0 +1,1 @@
+`dgrijalva/jwt-go`는 유집수가 공식적으로 중단된 라이브러리이므로 다른 라이브러리인 `golang-jwt/jwt` 사용함.
