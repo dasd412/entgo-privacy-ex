@@ -1,6 +1,7 @@
 type Mutation {
     signup(input: CreateUserInput!): User!
     signIn(username: String!, password: String!): String!
+    refreshToken(refreshToken: String!): String!
 
     createPost(input: CreatePostInput!): Post! #  기본적으로 모든 사용자가 생성 가능
     updatePost(id: ID!, input: UpdatePostInput!): Post! # 작성자만 수정 가능
