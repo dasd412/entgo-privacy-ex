@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"golang.org/x/crypto/bcrypt"
+	"net/http"
 	"privacy-ex/internal/repository"
 	"privacy-ex/pkg/auth"
 	"privacy-ex/pkg/ent"
 	"privacy-ex/pkg/ent/user"
 	"privacy-ex/pkg/graph/gen/graphqlmodel"
+	"privacy-ex/pkg/graph/httperror"
 )
 
 type (
@@ -111,13 +113,23 @@ func (s *userService) Login(
 		},
 	)
 
+	if ent.IsNotFound(err) {
+		return nil, &httperror.HTTPError{
+			StatusCode: http.StatusUnauthorized,
+			Message:    "failed to login",
+		}
+	}
+
 	if err != nil {
-		return nil, errors.New("user not found")
+		return nil, err
 	}
 
 	// 입력된 비밀번호화 해시화된 거 비교
 	if err := s.checkPassword(found.Password, password); err != nil {
-		return nil, errors.New("invalid password")
+		return nil, &httperror.HTTPError{
+			StatusCode: http.StatusUnauthorized,
+			Message:    "failed to login",
+		}
 	}
 
 	jwtTokenPair, err := auth.GenerateTokenPair(found.ID)
