@@ -13,58 +13,38 @@ import (
 )
 
 // Signup is the resolver for the signup field.
-func (r *mutationResolver) Signup(
-	ctx context.Context,
-	input ent.CreateUserInput,
-) (*graphqlmodel.AuthPayload, error) {
+func (r *mutationResolver) Signup(ctx context.Context, input ent.CreateUserInput) (*graphqlmodel.AuthPayload, error) {
 	entClient := ent.FromContext(ctx)
 	return r.userService.Signup(ctx, entClient, input)
 }
 
 // Login is the resolver for the login field.
-func (r *mutationResolver) Login(
-	ctx context.Context,
-	email string,
-	password string,
-) (*graphqlmodel.AuthPayload, error) {
+func (r *mutationResolver) Login(ctx context.Context, email string, password string) (*graphqlmodel.AuthPayload, error) {
 	entClient := ent.FromContext(ctx)
 	return r.userService.Login(ctx, entClient, email, password)
 }
 
 // RefreshToken is the resolver for the refreshToken field.
-func (r *mutationResolver) RefreshToken(
-	ctx context.Context,
-	refreshToken string,
-) (string, error) {
+func (r *mutationResolver) RefreshToken(ctx context.Context, refreshToken string) (string, error) {
 	panic(fmt.Errorf("not implemented: RefreshToken - refreshToken"))
 }
 
 // CreatePost is the resolver for the createPost field.
-func (r *mutationResolver) CreatePost(
-	ctx context.Context,
-	input ent.CreatePostInput,
-) (*ent.Post, error) {
+func (r *mutationResolver) CreatePost(ctx context.Context, input ent.CreatePostInput) (*ent.Post, error) {
 	// 기본적으로 모든 사용자가 생성 가능
 	entClient := ent.FromContext(ctx)
 	return r.postService.CreatePost(ctx, entClient, input)
 }
 
 // UpdatePost is the resolver for the updatePost field.
-func (r *mutationResolver) UpdatePost(
-	ctx context.Context,
-	id int,
-	input ent.UpdatePostInput,
-) (*ent.Post, error) {
+func (r *mutationResolver) UpdatePost(ctx context.Context, id int, input ent.UpdatePostInput) (*ent.Post, error) {
 	//작성자만 수정 가능
 	entClient := ent.FromContext(ctx)
 	return r.postService.UpdatePost(ctx, entClient, id, input)
 }
 
 // DeletePost is the resolver for the deletePost field.
-func (r *mutationResolver) DeletePost(ctx context.Context, id int) (
-	bool,
-	error,
-) {
+func (r *mutationResolver) DeletePost(ctx context.Context, id int) (bool, error) {
 	//관리자, 작성자만 삭제 가능
 	entClient := ent.FromContext(ctx)
 	return r.postService.DeletePost(ctx, entClient, id)

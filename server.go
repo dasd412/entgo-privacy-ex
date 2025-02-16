@@ -35,7 +35,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
 	}
-	defer client.Close()
+	defer func(client *ent.Client) {
+		_ = client.Close()
+	}(client)
 	// Run the auto migration tool.
 	if err := client.Schema.Create(ctx); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)

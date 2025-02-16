@@ -20,8 +20,9 @@ var requestData struct {
 
 // 인증이 필요 없는 API 목록
 var publicOperations = map[string]bool{
-	"signup": true,
-	"login":  true,
+	"signup":             true,
+	"login":              true,
+	"IntrospectionQuery": true,
 }
 
 func getOperationName(r *http.Request) (string, error) {
