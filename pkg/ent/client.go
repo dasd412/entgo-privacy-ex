@@ -309,7 +309,7 @@ func (c *PostClient) Get(ctx context.Context, id int) (*Post, error) {
 	return c.Query().Where(post.ID(id)).Only(ctx)
 }
 
-// GetX is like Get, but panics if an error occurs.
+// GetX is like Get, but panics if an httperror occurs.
 func (c *PostClient) GetX(ctx context.Context, id int) *Post {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
@@ -458,7 +458,7 @@ func (c *UserClient) Get(ctx context.Context, id int) (*User, error) {
 	return c.Query().Where(user.ID(id)).Only(ctx)
 }
 
-// GetX is like Get, but panics if an error occurs.
+// GetX is like Get, but panics if an httperror occurs.
 func (c *UserClient) GetX(ctx context.Context, id int) *User {
 	obj, err := c.Get(ctx, id)
 	if err != nil {

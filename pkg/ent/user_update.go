@@ -105,7 +105,7 @@ func (uu *UserUpdate) Save(ctx context.Context) (int, error) {
 	return withHooks(ctx, uu.sqlSave, uu.mutation, uu.hooks)
 }
 
-// SaveX is like Save, but panics if an error occurs.
+// SaveX is like Save, but panics if an httperror occurs.
 func (uu *UserUpdate) SaveX(ctx context.Context) int {
 	affected, err := uu.Save(ctx)
 	if err != nil {
@@ -120,7 +120,7 @@ func (uu *UserUpdate) Exec(ctx context.Context) error {
 	return err
 }
 
-// ExecX is like Exec, but panics if an error occurs.
+// ExecX is like Exec, but panics if an httperror occurs.
 func (uu *UserUpdate) ExecX(ctx context.Context) {
 	if err := uu.Exec(ctx); err != nil {
 		panic(err)
@@ -284,7 +284,7 @@ func (uuo *UserUpdateOne) Save(ctx context.Context) (*User, error) {
 	return withHooks(ctx, uuo.sqlSave, uuo.mutation, uuo.hooks)
 }
 
-// SaveX is like Save, but panics if an error occurs.
+// SaveX is like Save, but panics if an httperror occurs.
 func (uuo *UserUpdateOne) SaveX(ctx context.Context) *User {
 	node, err := uuo.Save(ctx)
 	if err != nil {
@@ -299,7 +299,7 @@ func (uuo *UserUpdateOne) Exec(ctx context.Context) error {
 	return err
 }
 
-// ExecX is like Exec, but panics if an error occurs.
+// ExecX is like Exec, but panics if an httperror occurs.
 func (uuo *UserUpdateOne) ExecX(ctx context.Context) {
 	if err := uuo.Exec(ctx); err != nil {
 		panic(err)

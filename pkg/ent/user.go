@@ -43,7 +43,7 @@ type UserEdges struct {
 	totalCount [1]map[string]int
 }
 
-// PostsOrErr returns the Posts value or an error if the edge
+// PostsOrErr returns the Posts value or an httperror if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e UserEdges) PostsOrErr() (*Post, error) {
 	if e.Posts != nil {

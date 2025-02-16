@@ -83,7 +83,7 @@ func (pc *PostCreate) Save(ctx context.Context) (*Post, error) {
 	return withHooks(ctx, pc.sqlSave, pc.mutation, pc.hooks)
 }
 
-// SaveX calls Save and panics if Save returns an error.
+// SaveX calls Save and panics if Save returns an httperror.
 func (pc *PostCreate) SaveX(ctx context.Context) *Post {
 	v, err := pc.Save(ctx)
 	if err != nil {
@@ -98,7 +98,7 @@ func (pc *PostCreate) Exec(ctx context.Context) error {
 	return err
 }
 
-// ExecX is like Exec, but panics if an error occurs.
+// ExecX is like Exec, but panics if an httperror occurs.
 func (pc *PostCreate) ExecX(ctx context.Context) {
 	if err := pc.Exec(ctx); err != nil {
 		panic(err)
@@ -270,7 +270,7 @@ func (pcb *PostCreateBulk) Save(ctx context.Context) ([]*Post, error) {
 	return nodes, nil
 }
 
-// SaveX is like Save, but panics if an error occurs.
+// SaveX is like Save, but panics if an httperror occurs.
 func (pcb *PostCreateBulk) SaveX(ctx context.Context) []*Post {
 	v, err := pcb.Save(ctx)
 	if err != nil {
@@ -285,7 +285,7 @@ func (pcb *PostCreateBulk) Exec(ctx context.Context) error {
 	return err
 }
 
-// ExecX is like Exec, but panics if an error occurs.
+// ExecX is like Exec, but panics if an httperror occurs.
 func (pcb *PostCreateBulk) ExecX(ctx context.Context) {
 	if err := pcb.Exec(ctx); err != nil {
 		panic(err)

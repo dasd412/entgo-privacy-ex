@@ -7,11 +7,13 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/rs/cors"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 	"log"
 	"net/http"
 	"privacy-ex/pkg/auth"
 	"privacy-ex/pkg/ent"
 	_ "privacy-ex/pkg/ent/runtime"
+	"privacy-ex/pkg/graph/httperror"
 	"privacy-ex/pkg/graph/resolver"
 	"strconv"
 	"time"
@@ -51,6 +53,9 @@ func main() {
 
 	server := handler.NewDefaultServer(resolver.NewSchema(client))
 	server.Use(entgql.Transactioner{TxOpener: client})
+	server.SetErrorPresenter(func(ctx context.Context, err error) *gqlerror.Error {
+		return httperror.ErrorPresenter(ctx, err)
+	})
 
 	corsWrapper := cors.AllowAll().Handler
 

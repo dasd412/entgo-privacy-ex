@@ -30,7 +30,7 @@ func (ud *UserDelete) Exec(ctx context.Context) (int, error) {
 	return withHooks(ctx, ud.sqlExec, ud.mutation, ud.hooks)
 }
 
-// ExecX is like Exec, but panics if an error occurs.
+// ExecX is like Exec, but panics if an httperror occurs.
 func (ud *UserDelete) ExecX(ctx context.Context) int {
 	n, err := ud.Exec(ctx)
 	if err != nil {
@@ -80,7 +80,7 @@ func (udo *UserDeleteOne) Exec(ctx context.Context) error {
 	}
 }
 
-// ExecX is like Exec, but panics if an error occurs.
+// ExecX is like Exec, but panics if an httperror occurs.
 func (udo *UserDeleteOne) ExecX(ctx context.Context) {
 	if err := udo.Exec(ctx); err != nil {
 		panic(err)

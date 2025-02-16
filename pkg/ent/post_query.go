@@ -97,7 +97,7 @@ func (pq *PostQuery) First(ctx context.Context) (*Post, error) {
 	return nodes[0], nil
 }
 
-// FirstX is like First, but panics if an error occurs.
+// FirstX is like First, but panics if an httperror occurs.
 func (pq *PostQuery) FirstX(ctx context.Context) *Post {
 	node, err := pq.First(ctx)
 	if err != nil && !IsNotFound(err) {
@@ -120,7 +120,7 @@ func (pq *PostQuery) FirstID(ctx context.Context) (id int, err error) {
 	return ids[0], nil
 }
 
-// FirstIDX is like FirstID, but panics if an error occurs.
+// FirstIDX is like FirstID, but panics if an httperror occurs.
 func (pq *PostQuery) FirstIDX(ctx context.Context) int {
 	id, err := pq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
@@ -147,7 +147,7 @@ func (pq *PostQuery) Only(ctx context.Context) (*Post, error) {
 	}
 }
 
-// OnlyX is like Only, but panics if an error occurs.
+// OnlyX is like Only, but panics if an httperror occurs.
 func (pq *PostQuery) OnlyX(ctx context.Context) *Post {
 	node, err := pq.Only(ctx)
 	if err != nil {
@@ -175,7 +175,7 @@ func (pq *PostQuery) OnlyID(ctx context.Context) (id int, err error) {
 	return
 }
 
-// OnlyIDX is like OnlyID, but panics if an error occurs.
+// OnlyIDX is like OnlyID, but panics if an httperror occurs.
 func (pq *PostQuery) OnlyIDX(ctx context.Context) int {
 	id, err := pq.OnlyID(ctx)
 	if err != nil {
@@ -194,7 +194,7 @@ func (pq *PostQuery) All(ctx context.Context) ([]*Post, error) {
 	return withInterceptors[[]*Post](ctx, pq, qr, pq.inters)
 }
 
-// AllX is like All, but panics if an error occurs.
+// AllX is like All, but panics if an httperror occurs.
 func (pq *PostQuery) AllX(ctx context.Context) []*Post {
 	nodes, err := pq.All(ctx)
 	if err != nil {
@@ -215,7 +215,7 @@ func (pq *PostQuery) IDs(ctx context.Context) (ids []int, err error) {
 	return ids, nil
 }
 
-// IDsX is like IDs, but panics if an error occurs.
+// IDsX is like IDs, but panics if an httperror occurs.
 func (pq *PostQuery) IDsX(ctx context.Context) []int {
 	ids, err := pq.IDs(ctx)
 	if err != nil {
@@ -233,7 +233,7 @@ func (pq *PostQuery) Count(ctx context.Context) (int, error) {
 	return withInterceptors[int](ctx, pq, querierCount[*PostQuery](), pq.inters)
 }
 
-// CountX is like Count, but panics if an error occurs.
+// CountX is like Count, but panics if an httperror occurs.
 func (pq *PostQuery) CountX(ctx context.Context) int {
 	count, err := pq.Count(ctx)
 	if err != nil {
@@ -255,7 +255,7 @@ func (pq *PostQuery) Exist(ctx context.Context) (bool, error) {
 	}
 }
 
-// ExistX is like Exist, but panics if an error occurs.
+// ExistX is like Exist, but panics if an httperror occurs.
 func (pq *PostQuery) ExistX(ctx context.Context) bool {
 	exist, err := pq.Exist(ctx)
 	if err != nil {

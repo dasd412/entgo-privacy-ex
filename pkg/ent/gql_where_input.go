@@ -113,7 +113,7 @@ func (i *PostWhereInput) Filter(q *PostQuery) (*PostQuery, error) {
 var ErrEmptyPostWhereInput = errors.New("ent: empty predicate PostWhereInput")
 
 // P returns a predicate for filtering posts.
-// An error is returned if the input is empty or invalid.
+// An httperror is returned if the input is empty or invalid.
 func (i *PostWhereInput) P() (predicate.Post, error) {
 	var predicates []predicate.Post
 	if i.Not != nil {
@@ -452,7 +452,7 @@ func (i *UserWhereInput) Filter(q *UserQuery) (*UserQuery, error) {
 var ErrEmptyUserWhereInput = errors.New("ent: empty predicate UserWhereInput")
 
 // P returns a predicate for filtering users.
-// An error is returned if the input is empty or invalid.
+// An httperror is returned if the input is empty or invalid.
 func (i *UserWhereInput) P() (predicate.User, error) {
 	var predicates []predicate.User
 	if i.Not != nil {

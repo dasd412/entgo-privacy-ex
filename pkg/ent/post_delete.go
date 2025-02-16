@@ -30,7 +30,7 @@ func (pd *PostDelete) Exec(ctx context.Context) (int, error) {
 	return withHooks(ctx, pd.sqlExec, pd.mutation, pd.hooks)
 }
 
-// ExecX is like Exec, but panics if an error occurs.
+// ExecX is like Exec, but panics if an httperror occurs.
 func (pd *PostDelete) ExecX(ctx context.Context) int {
 	n, err := pd.Exec(ctx)
 	if err != nil {
@@ -80,7 +80,7 @@ func (pdo *PostDeleteOne) Exec(ctx context.Context) error {
 	}
 }
 
-// ExecX is like Exec, but panics if an error occurs.
+// ExecX is like Exec, but panics if an httperror occurs.
 func (pdo *PostDeleteOne) ExecX(ctx context.Context) {
 	if err := pdo.Exec(ctx); err != nil {
 		panic(err)

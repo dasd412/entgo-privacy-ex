@@ -45,7 +45,7 @@ type PostEdges struct {
 	totalCount [1]map[string]int
 }
 
-// AuthorOrErr returns the Author value or an error if the edge
+// AuthorOrErr returns the Author value or an httperror if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e PostEdges) AuthorOrErr() (*User, error) {
 	if e.Author != nil {

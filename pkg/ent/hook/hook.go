@@ -152,7 +152,7 @@ func Unless(hk ent.Hook, op ent.Op) ent.Hook {
 	return If(hk, Not(HasOp(op)))
 }
 
-// FixedError is a hook returning a fixed error.
+// FixedError is a hook returning a fixed httperror.
 func FixedError(err error) ent.Hook {
 	return func(ent.Mutator) ent.Mutator {
 		return ent.MutateFunc(func(context.Context, ent.Mutation) (ent.Value, error) {

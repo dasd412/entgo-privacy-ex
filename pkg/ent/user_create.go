@@ -83,7 +83,7 @@ func (uc *UserCreate) Save(ctx context.Context) (*User, error) {
 	return withHooks(ctx, uc.sqlSave, uc.mutation, uc.hooks)
 }
 
-// SaveX calls Save and panics if Save returns an error.
+// SaveX calls Save and panics if Save returns an httperror.
 func (uc *UserCreate) SaveX(ctx context.Context) *User {
 	v, err := uc.Save(ctx)
 	if err != nil {
@@ -98,7 +98,7 @@ func (uc *UserCreate) Exec(ctx context.Context) error {
 	return err
 }
 
-// ExecX is like Exec, but panics if an error occurs.
+// ExecX is like Exec, but panics if an httperror occurs.
 func (uc *UserCreate) ExecX(ctx context.Context) {
 	if err := uc.Exec(ctx); err != nil {
 		panic(err)
@@ -254,7 +254,7 @@ func (ucb *UserCreateBulk) Save(ctx context.Context) ([]*User, error) {
 	return nodes, nil
 }
 
-// SaveX is like Save, but panics if an error occurs.
+// SaveX is like Save, but panics if an httperror occurs.
 func (ucb *UserCreateBulk) SaveX(ctx context.Context) []*User {
 	v, err := ucb.Save(ctx)
 	if err != nil {
@@ -269,7 +269,7 @@ func (ucb *UserCreateBulk) Exec(ctx context.Context) error {
 	return err
 }
 
-// ExecX is like Exec, but panics if an error occurs.
+// ExecX is like Exec, but panics if an httperror occurs.
 func (ucb *UserCreateBulk) ExecX(ctx context.Context) {
 	if err := ucb.Exec(ctx); err != nil {
 		panic(err)
