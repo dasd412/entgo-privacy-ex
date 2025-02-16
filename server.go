@@ -54,7 +54,7 @@ func main() {
 	server := handler.NewDefaultServer(resolver.NewSchema(client))
 	server.Use(entgql.Transactioner{TxOpener: client})
 	server.SetErrorPresenter(func(ctx context.Context, err error) *gqlerror.Error {
-		return httperror.ErrorPresenter(ctx, err)
+		return httperror.WrapError(ctx, err)
 	})
 
 	corsWrapper := cors.AllowAll().Handler
