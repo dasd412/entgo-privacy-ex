@@ -5,6 +5,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"io"
 	"net/http"
+	"privacy-ex/pkg/ent"
 	"privacy-ex/pkg/graph/httperror"
 	"strings"
 )
@@ -109,6 +110,34 @@ func JWTMiddleware(next http.Handler) http.Handler {
 
 			// 사용자 id를 context에 저장
 			ctx := WithUserId(r.Context(), userId)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		},
+	)
+}
+
+func RoleMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			// Context에서 userId 가져오기
+			userId, err := GetUserId(r.Context())
+
+			if err != nil || userId == -1 {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			// DB에서 user 정보 조회하여 Role 가져오기
+			client := ent.FromContext(r.Context())
+
+			user, err := client.User.Get(r.Context(), userId)
+
+			if err != nil {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			// Authority 정보 Context에 저장
+			ctx := WithUserAuthority(r.Context(), NewAuthority(user.Role))
 			next.ServeHTTP(w, r.WithContext(ctx))
 		},
 	)

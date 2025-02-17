@@ -40,6 +40,7 @@ func main() {
 	defer func(client *ent.Client) {
 		_ = client.Close()
 	}(client)
+
 	// Run the auto migration tool.
 	if err := client.Schema.Create(ctx); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
@@ -60,7 +61,7 @@ func main() {
 	corsWrapper := cors.AllowAll().Handler
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
-	http.Handle("/graphql", corsWrapper(auth.JWTMiddleware(server)))
+	http.Handle("/graphql", corsWrapper(auth.JWTMiddleware(auth.RoleMiddleware(server))))
 
 	log.Printf("Connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
