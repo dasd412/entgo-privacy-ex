@@ -28,6 +28,9 @@ func (User) Fields() []ent.Field {
 			Comment("생성 날짜").
 			Default(time.Now).
 			Immutable(),
+		field.Enum("role").
+			Values("admin", "owner", "viewer").
+			Comment("인가 권한"),
 	}
 }
 

@@ -3,6 +3,9 @@
 package user
 
 import (
+	"fmt"
+	"io"
+	"strconv"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -22,6 +25,8 @@ const (
 	FieldName = "name"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
+	// FieldRole holds the string denoting the role field in the database.
+	FieldRole = "role"
 	// EdgePosts holds the string denoting the posts edge name in mutations.
 	EdgePosts = "posts"
 	// Table holds the table name of the user in the database.
@@ -42,6 +47,7 @@ var Columns = []string{
 	FieldPassword,
 	FieldName,
 	FieldCreatedAt,
+	FieldRole,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -58,6 +64,30 @@ var (
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 )
+
+// Role defines the type for the "role" enum field.
+type Role string
+
+// Role values.
+const (
+	RoleAdmin  Role = "admin"
+	RoleOwner  Role = "owner"
+	RoleViewer Role = "viewer"
+)
+
+func (r Role) String() string {
+	return string(r)
+}
+
+// RoleValidator is a validator for the "role" field enum values. It is called by the builders before save.
+func RoleValidator(r Role) error {
+	switch r {
+	case RoleAdmin, RoleOwner, RoleViewer:
+		return nil
+	default:
+		return fmt.Errorf("user: invalid enum value for role field: %q", r)
+	}
+}
 
 // OrderOption defines the ordering options for the User queries.
 type OrderOption func(*sql.Selector)
@@ -87,6 +117,11 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
 }
 
+// ByRole orders the results by the role field.
+func ByRole(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRole, opts...).ToFunc()
+}
+
 // ByPostsField orders the results by posts field.
 func ByPostsField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -99,4 +134,22 @@ func newPostsStep() *sqlgraph.Step {
 		sqlgraph.To(PostsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, false, PostsTable, PostsColumn),
 	)
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (e Role) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(e.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (e *Role) UnmarshalGQL(val interface{}) error {
+	str, ok := val.(string)
+	if !ok {
+		return fmt.Errorf("enum %T must be a string", val)
+	}
+	*e = Role(str)
+	if err := RoleValidator(*e); err != nil {
+		return fmt.Errorf("%s is not a valid Role", str)
+	}
+	return nil
 }

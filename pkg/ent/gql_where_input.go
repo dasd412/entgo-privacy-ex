@@ -113,7 +113,7 @@ func (i *PostWhereInput) Filter(q *PostQuery) (*PostQuery, error) {
 var ErrEmptyPostWhereInput = errors.New("ent: empty predicate PostWhereInput")
 
 // P returns a predicate for filtering posts.
-// An httperror is returned if the input is empty or invalid.
+// An error is returned if the input is empty or invalid.
 func (i *PostWhereInput) P() (predicate.Post, error) {
 	var predicates []predicate.Post
 	if i.Not != nil {
@@ -423,6 +423,12 @@ type UserWhereInput struct {
 	CreatedAtLT    *time.Time  `json:"createdAtLT,omitempty"`
 	CreatedAtLTE   *time.Time  `json:"createdAtLTE,omitempty"`
 
+	// "role" field predicates.
+	Role      *user.Role  `json:"role,omitempty"`
+	RoleNEQ   *user.Role  `json:"roleNEQ,omitempty"`
+	RoleIn    []user.Role `json:"roleIn,omitempty"`
+	RoleNotIn []user.Role `json:"roleNotIn,omitempty"`
+
 	// "posts" edge predicates.
 	HasPosts     *bool             `json:"hasPosts,omitempty"`
 	HasPostsWith []*PostWhereInput `json:"hasPostsWith,omitempty"`
@@ -452,7 +458,7 @@ func (i *UserWhereInput) Filter(q *UserQuery) (*UserQuery, error) {
 var ErrEmptyUserWhereInput = errors.New("ent: empty predicate UserWhereInput")
 
 // P returns a predicate for filtering users.
-// An httperror is returned if the input is empty or invalid.
+// An error is returned if the input is empty or invalid.
 func (i *UserWhereInput) P() (predicate.User, error) {
 	var predicates []predicate.User
 	if i.Not != nil {
@@ -663,6 +669,18 @@ func (i *UserWhereInput) P() (predicate.User, error) {
 	}
 	if i.CreatedAtLTE != nil {
 		predicates = append(predicates, user.CreatedAtLTE(*i.CreatedAtLTE))
+	}
+	if i.Role != nil {
+		predicates = append(predicates, user.RoleEQ(*i.Role))
+	}
+	if i.RoleNEQ != nil {
+		predicates = append(predicates, user.RoleNEQ(*i.RoleNEQ))
+	}
+	if len(i.RoleIn) > 0 {
+		predicates = append(predicates, user.RoleIn(i.RoleIn...))
+	}
+	if len(i.RoleNotIn) > 0 {
+		predicates = append(predicates, user.RoleNotIn(i.RoleNotIn...))
 	}
 
 	if i.HasPosts != nil {

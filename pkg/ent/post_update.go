@@ -99,7 +99,7 @@ func (pu *PostUpdate) Save(ctx context.Context) (int, error) {
 	return withHooks(ctx, pu.sqlSave, pu.mutation, pu.hooks)
 }
 
-// SaveX is like Save, but panics if an httperror occurs.
+// SaveX is like Save, but panics if an error occurs.
 func (pu *PostUpdate) SaveX(ctx context.Context) int {
 	affected, err := pu.Save(ctx)
 	if err != nil {
@@ -114,7 +114,7 @@ func (pu *PostUpdate) Exec(ctx context.Context) error {
 	return err
 }
 
-// ExecX is like Exec, but panics if an httperror occurs.
+// ExecX is like Exec, but panics if an error occurs.
 func (pu *PostUpdate) ExecX(ctx context.Context) {
 	if err := pu.Exec(ctx); err != nil {
 		panic(err)
@@ -295,7 +295,7 @@ func (puo *PostUpdateOne) Save(ctx context.Context) (*Post, error) {
 	return withHooks(ctx, puo.sqlSave, puo.mutation, puo.hooks)
 }
 
-// SaveX is like Save, but panics if an httperror occurs.
+// SaveX is like Save, but panics if an error occurs.
 func (puo *PostUpdateOne) SaveX(ctx context.Context) *Post {
 	node, err := puo.Save(ctx)
 	if err != nil {
@@ -310,7 +310,7 @@ func (puo *PostUpdateOne) Exec(ctx context.Context) error {
 	return err
 }
 
-// ExecX is like Exec, but panics if an httperror occurs.
+// ExecX is like Exec, but panics if an error occurs.
 func (puo *PostUpdateOne) ExecX(ctx context.Context) {
 	if err := puo.Exec(ctx); err != nil {
 		panic(err)

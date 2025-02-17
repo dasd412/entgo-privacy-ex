@@ -44,6 +44,10 @@ input CreateUserInput {
   생성 날짜
   """
   createdAt: Time
+  """
+  인가 권한
+  """
+  role: UserRole!
   postsID: ID
 }
 """
@@ -351,6 +355,10 @@ input UpdateUserInput {
   이름
   """
   name: String
+  """
+  인가 권한
+  """
+  role: UserRole
   postsID: ID
   clearPosts: Boolean
 }
@@ -372,6 +380,10 @@ type User implements Node {
   생성 날짜
   """
   createdAt: Time!
+  """
+  인가 권한
+  """
+  role: UserRole!
   posts: Post
 }
 """
@@ -403,6 +415,14 @@ type UserEdge {
   A cursor for use in pagination.
   """
   cursor: Cursor!
+}
+"""
+UserRole is enum for the field role
+"""
+enum UserRole @goModel(model: "privacy-ex/pkg/ent/user.Role") {
+  admin
+  owner
+  viewer
 }
 """
 UserWhereInput is used for filtering User objects.
@@ -482,6 +502,13 @@ input UserWhereInput {
   createdAtGTE: Time
   createdAtLT: Time
   createdAtLTE: Time
+  """
+  role field predicates
+  """
+  role: UserRole
+  roleNEQ: UserRole
+  roleIn: [UserRole!]
+  roleNotIn: [UserRole!]
   """
   posts edge predicates
   """

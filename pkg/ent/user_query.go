@@ -98,7 +98,7 @@ func (uq *UserQuery) First(ctx context.Context) (*User, error) {
 	return nodes[0], nil
 }
 
-// FirstX is like First, but panics if an httperror occurs.
+// FirstX is like First, but panics if an error occurs.
 func (uq *UserQuery) FirstX(ctx context.Context) *User {
 	node, err := uq.First(ctx)
 	if err != nil && !IsNotFound(err) {
@@ -121,7 +121,7 @@ func (uq *UserQuery) FirstID(ctx context.Context) (id int, err error) {
 	return ids[0], nil
 }
 
-// FirstIDX is like FirstID, but panics if an httperror occurs.
+// FirstIDX is like FirstID, but panics if an error occurs.
 func (uq *UserQuery) FirstIDX(ctx context.Context) int {
 	id, err := uq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
@@ -148,7 +148,7 @@ func (uq *UserQuery) Only(ctx context.Context) (*User, error) {
 	}
 }
 
-// OnlyX is like Only, but panics if an httperror occurs.
+// OnlyX is like Only, but panics if an error occurs.
 func (uq *UserQuery) OnlyX(ctx context.Context) *User {
 	node, err := uq.Only(ctx)
 	if err != nil {
@@ -176,7 +176,7 @@ func (uq *UserQuery) OnlyID(ctx context.Context) (id int, err error) {
 	return
 }
 
-// OnlyIDX is like OnlyID, but panics if an httperror occurs.
+// OnlyIDX is like OnlyID, but panics if an error occurs.
 func (uq *UserQuery) OnlyIDX(ctx context.Context) int {
 	id, err := uq.OnlyID(ctx)
 	if err != nil {
@@ -195,7 +195,7 @@ func (uq *UserQuery) All(ctx context.Context) ([]*User, error) {
 	return withInterceptors[[]*User](ctx, uq, qr, uq.inters)
 }
 
-// AllX is like All, but panics if an httperror occurs.
+// AllX is like All, but panics if an error occurs.
 func (uq *UserQuery) AllX(ctx context.Context) []*User {
 	nodes, err := uq.All(ctx)
 	if err != nil {
@@ -216,7 +216,7 @@ func (uq *UserQuery) IDs(ctx context.Context) (ids []int, err error) {
 	return ids, nil
 }
 
-// IDsX is like IDs, but panics if an httperror occurs.
+// IDsX is like IDs, but panics if an error occurs.
 func (uq *UserQuery) IDsX(ctx context.Context) []int {
 	ids, err := uq.IDs(ctx)
 	if err != nil {
@@ -234,7 +234,7 @@ func (uq *UserQuery) Count(ctx context.Context) (int, error) {
 	return withInterceptors[int](ctx, uq, querierCount[*UserQuery](), uq.inters)
 }
 
-// CountX is like Count, but panics if an httperror occurs.
+// CountX is like Count, but panics if an error occurs.
 func (uq *UserQuery) CountX(ctx context.Context) int {
 	count, err := uq.Count(ctx)
 	if err != nil {
@@ -256,7 +256,7 @@ func (uq *UserQuery) Exist(ctx context.Context) (bool, error) {
 	}
 }
 
-// ExistX is like Exist, but panics if an httperror occurs.
+// ExistX is like Exist, but panics if an error occurs.
 func (uq *UserQuery) ExistX(ctx context.Context) bool {
 	exist, err := uq.Exist(ctx)
 	if err != nil {

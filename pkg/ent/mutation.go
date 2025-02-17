@@ -107,7 +107,7 @@ func (m PostMutation) Client() *Client {
 }
 
 // Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an httperror otherwise.
+// it returns an error otherwise.
 func (m PostMutation) Tx() (*Tx, error) {
 	if _, ok := m.driver.(*txDriver); !ok {
 		return nil, errors.New("ent: mutation is not running in a transaction")
@@ -161,7 +161,7 @@ func (m *PostMutation) Title() (r string, exists bool) {
 
 // OldTitle returns the old "title" field's value of the Post entity.
 // If the Post object wasn't provided to the builder, the object is fetched from the database.
-// An httperror is returned if the mutation operation is not UpdateOne, or the database query fails.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *PostMutation) OldTitle(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTitle is only allowed on UpdateOne operations")
@@ -197,7 +197,7 @@ func (m *PostMutation) Content() (r string, exists bool) {
 
 // OldContent returns the old "content" field's value of the Post entity.
 // If the Post object wasn't provided to the builder, the object is fetched from the database.
-// An httperror is returned if the mutation operation is not UpdateOne, or the database query fails.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *PostMutation) OldContent(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldContent is only allowed on UpdateOne operations")
@@ -233,7 +233,7 @@ func (m *PostMutation) CreatedAt() (r time.Time, exists bool) {
 
 // OldCreatedAt returns the old "created_at" field's value of the Post entity.
 // If the Post object wasn't provided to the builder, the object is fetched from the database.
-// An httperror is returned if the mutation operation is not UpdateOne, or the database query fails.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *PostMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
@@ -269,7 +269,7 @@ func (m *PostMutation) UpdatedAt() (r time.Time, exists bool) {
 
 // OldUpdatedAt returns the old "updated_at" field's value of the Post entity.
 // If the Post object wasn't provided to the builder, the object is fetched from the database.
-// An httperror is returned if the mutation operation is not UpdateOne, or the database query fails.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *PostMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
@@ -305,7 +305,7 @@ func (m *PostMutation) AuthorID() (r int, exists bool) {
 
 // OldAuthorID returns the old "author_id" field's value of the Post entity.
 // If the Post object wasn't provided to the builder, the object is fetched from the database.
-// An httperror is returned if the mutation operation is not UpdateOne, or the database query fails.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *PostMutation) OldAuthorID(ctx context.Context) (v int, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldAuthorID is only allowed on UpdateOne operations")
@@ -424,7 +424,7 @@ func (m *PostMutation) Field(name string) (ent.Value, bool) {
 	return nil, false
 }
 
-// OldField returns the old value of the field from the database. An httperror is
+// OldField returns the old value of the field from the database. An error is
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
 func (m *PostMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
@@ -443,7 +443,7 @@ func (m *PostMutation) OldField(ctx context.Context, name string) (ent.Value, er
 	return nil, fmt.Errorf("unknown Post field %s", name)
 }
 
-// SetField sets the value of a field with the given name. It returns an httperror if
+// SetField sets the value of a field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
 func (m *PostMutation) SetField(name string, value ent.Value) error {
@@ -503,7 +503,7 @@ func (m *PostMutation) AddedField(name string) (ent.Value, bool) {
 	return nil, false
 }
 
-// AddField adds the value to the field with the given name. It returns an httperror if
+// AddField adds the value to the field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
 func (m *PostMutation) AddField(name string, value ent.Value) error {
@@ -526,13 +526,13 @@ func (m *PostMutation) FieldCleared(name string) bool {
 }
 
 // ClearField clears the value of the field with the given name. It returns an
-// httperror if the field is not defined in the schema.
+// error if the field is not defined in the schema.
 func (m *PostMutation) ClearField(name string) error {
 	return fmt.Errorf("unknown Post nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
-// It returns an httperror if the field is not defined in the schema.
+// It returns an error if the field is not defined in the schema.
 func (m *PostMutation) ResetField(name string) error {
 	switch name {
 	case post.FieldTitle:
@@ -606,7 +606,7 @@ func (m *PostMutation) EdgeCleared(name string) bool {
 	return false
 }
 
-// ClearEdge clears the value of the edge with the given name. It returns an httperror
+// ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *PostMutation) ClearEdge(name string) error {
 	switch name {
@@ -618,7 +618,7 @@ func (m *PostMutation) ClearEdge(name string) error {
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an httperror if the edge is not defined in the schema.
+// It returns an error if the edge is not defined in the schema.
 func (m *PostMutation) ResetEdge(name string) error {
 	switch name {
 	case post.EdgeAuthor:
@@ -638,6 +638,7 @@ type UserMutation struct {
 	password      *string
 	name          *string
 	created_at    *time.Time
+	role          *user.Role
 	clearedFields map[string]struct{}
 	posts         *int
 	clearedposts  bool
@@ -706,7 +707,7 @@ func (m UserMutation) Client() *Client {
 }
 
 // Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an httperror otherwise.
+// it returns an error otherwise.
 func (m UserMutation) Tx() (*Tx, error) {
 	if _, ok := m.driver.(*txDriver); !ok {
 		return nil, errors.New("ent: mutation is not running in a transaction")
@@ -760,7 +761,7 @@ func (m *UserMutation) Email() (r string, exists bool) {
 
 // OldEmail returns the old "email" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
-// An httperror is returned if the mutation operation is not UpdateOne, or the database query fails.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *UserMutation) OldEmail(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldEmail is only allowed on UpdateOne operations")
@@ -796,7 +797,7 @@ func (m *UserMutation) Password() (r string, exists bool) {
 
 // OldPassword returns the old "password" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
-// An httperror is returned if the mutation operation is not UpdateOne, or the database query fails.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *UserMutation) OldPassword(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPassword is only allowed on UpdateOne operations")
@@ -832,7 +833,7 @@ func (m *UserMutation) Name() (r string, exists bool) {
 
 // OldName returns the old "name" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
-// An httperror is returned if the mutation operation is not UpdateOne, or the database query fails.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *UserMutation) OldName(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldName is only allowed on UpdateOne operations")
@@ -868,7 +869,7 @@ func (m *UserMutation) CreatedAt() (r time.Time, exists bool) {
 
 // OldCreatedAt returns the old "created_at" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
-// An httperror is returned if the mutation operation is not UpdateOne, or the database query fails.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *UserMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
@@ -886,6 +887,42 @@ func (m *UserMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error
 // ResetCreatedAt resets all changes to the "created_at" field.
 func (m *UserMutation) ResetCreatedAt() {
 	m.created_at = nil
+}
+
+// SetRole sets the "role" field.
+func (m *UserMutation) SetRole(u user.Role) {
+	m.role = &u
+}
+
+// Role returns the value of the "role" field in the mutation.
+func (m *UserMutation) Role() (r user.Role, exists bool) {
+	v := m.role
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRole returns the old "role" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldRole(ctx context.Context) (v user.Role, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRole is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRole requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRole: %w", err)
+	}
+	return oldValue.Role, nil
+}
+
+// ResetRole resets all changes to the "role" field.
+func (m *UserMutation) ResetRole() {
+	m.role = nil
 }
 
 // SetPostsID sets the "posts" edge to the Post entity by id.
@@ -961,7 +998,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.email != nil {
 		fields = append(fields, user.FieldEmail)
 	}
@@ -973,6 +1010,9 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
+	}
+	if m.role != nil {
+		fields = append(fields, user.FieldRole)
 	}
 	return fields
 }
@@ -990,11 +1030,13 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Name()
 	case user.FieldCreatedAt:
 		return m.CreatedAt()
+	case user.FieldRole:
+		return m.Role()
 	}
 	return nil, false
 }
 
-// OldField returns the old value of the field from the database. An httperror is
+// OldField returns the old value of the field from the database. An error is
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
 func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
@@ -1007,11 +1049,13 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldName(ctx)
 	case user.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
+	case user.FieldRole:
+		return m.OldRole(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
 
-// SetField sets the value of a field with the given name. It returns an httperror if
+// SetField sets the value of a field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
 func (m *UserMutation) SetField(name string, value ent.Value) error {
@@ -1044,6 +1088,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetCreatedAt(v)
 		return nil
+	case user.FieldRole:
+		v, ok := value.(user.Role)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRole(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
@@ -1061,7 +1112,7 @@ func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
 	return nil, false
 }
 
-// AddField adds the value to the field with the given name. It returns an httperror if
+// AddField adds the value to the field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
 func (m *UserMutation) AddField(name string, value ent.Value) error {
@@ -1084,13 +1135,13 @@ func (m *UserMutation) FieldCleared(name string) bool {
 }
 
 // ClearField clears the value of the field with the given name. It returns an
-// httperror if the field is not defined in the schema.
+// error if the field is not defined in the schema.
 func (m *UserMutation) ClearField(name string) error {
 	return fmt.Errorf("unknown User nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
-// It returns an httperror if the field is not defined in the schema.
+// It returns an error if the field is not defined in the schema.
 func (m *UserMutation) ResetField(name string) error {
 	switch name {
 	case user.FieldEmail:
@@ -1104,6 +1155,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldCreatedAt:
 		m.ResetCreatedAt()
+		return nil
+	case user.FieldRole:
+		m.ResetRole()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -1161,7 +1215,7 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 	return false
 }
 
-// ClearEdge clears the value of the edge with the given name. It returns an httperror
+// ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *UserMutation) ClearEdge(name string) error {
 	switch name {
@@ -1173,7 +1227,7 @@ func (m *UserMutation) ClearEdge(name string) error {
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an httperror if the edge is not defined in the schema.
+// It returns an error if the edge is not defined in the schema.
 func (m *UserMutation) ResetEdge(name string) error {
 	switch name {
 	case user.EdgePosts:

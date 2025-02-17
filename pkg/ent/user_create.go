@@ -53,6 +53,12 @@ func (uc *UserCreate) SetNillableCreatedAt(t *time.Time) *UserCreate {
 	return uc
 }
 
+// SetRole sets the "role" field.
+func (uc *UserCreate) SetRole(u user.Role) *UserCreate {
+	uc.mutation.SetRole(u)
+	return uc
+}
+
 // SetPostsID sets the "posts" edge to the Post entity by ID.
 func (uc *UserCreate) SetPostsID(id int) *UserCreate {
 	uc.mutation.SetPostsID(id)
@@ -83,7 +89,7 @@ func (uc *UserCreate) Save(ctx context.Context) (*User, error) {
 	return withHooks(ctx, uc.sqlSave, uc.mutation, uc.hooks)
 }
 
-// SaveX calls Save and panics if Save returns an httperror.
+// SaveX calls Save and panics if Save returns an error.
 func (uc *UserCreate) SaveX(ctx context.Context) *User {
 	v, err := uc.Save(ctx)
 	if err != nil {
@@ -98,7 +104,7 @@ func (uc *UserCreate) Exec(ctx context.Context) error {
 	return err
 }
 
-// ExecX is like Exec, but panics if an httperror occurs.
+// ExecX is like Exec, but panics if an error occurs.
 func (uc *UserCreate) ExecX(ctx context.Context) {
 	if err := uc.Exec(ctx); err != nil {
 		panic(err)
@@ -126,6 +132,14 @@ func (uc *UserCreate) check() error {
 	}
 	if _, ok := uc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "User.created_at"`)}
+	}
+	if _, ok := uc.mutation.Role(); !ok {
+		return &ValidationError{Name: "role", err: errors.New(`ent: missing required field "User.role"`)}
+	}
+	if v, ok := uc.mutation.Role(); ok {
+		if err := user.RoleValidator(v); err != nil {
+			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "User.role": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -168,6 +182,10 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.CreatedAt(); ok {
 		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
+	}
+	if value, ok := uc.mutation.Role(); ok {
+		_spec.SetField(user.FieldRole, field.TypeEnum, value)
+		_node.Role = value
 	}
 	if nodes := uc.mutation.PostsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -254,7 +272,7 @@ func (ucb *UserCreateBulk) Save(ctx context.Context) ([]*User, error) {
 	return nodes, nil
 }
 
-// SaveX is like Save, but panics if an httperror occurs.
+// SaveX is like Save, but panics if an error occurs.
 func (ucb *UserCreateBulk) SaveX(ctx context.Context) []*User {
 	v, err := ucb.Save(ctx)
 	if err != nil {
@@ -269,7 +287,7 @@ func (ucb *UserCreateBulk) Exec(ctx context.Context) error {
 	return err
 }
 
-// ExecX is like Exec, but panics if an httperror occurs.
+// ExecX is like Exec, but panics if an error occurs.
 func (ucb *UserCreateBulk) ExecX(ctx context.Context) {
 	if err := ucb.Exec(ctx); err != nil {
 		panic(err)

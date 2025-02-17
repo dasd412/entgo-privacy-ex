@@ -26,6 +26,8 @@ type User struct {
 	Name string `json:"name,omitempty"`
 	// 생성 날짜
 	CreatedAt time.Time `json:"created_at,omitempty"`
+	// 인가 권한
+	Role user.Role `json:"role,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
@@ -43,7 +45,7 @@ type UserEdges struct {
 	totalCount [1]map[string]int
 }
 
-// PostsOrErr returns the Posts value or an httperror if the edge
+// PostsOrErr returns the Posts value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e UserEdges) PostsOrErr() (*Post, error) {
 	if e.Posts != nil {
@@ -61,7 +63,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case user.FieldID:
 			values[i] = new(sql.NullInt64)
-		case user.FieldEmail, user.FieldPassword, user.FieldName:
+		case user.FieldEmail, user.FieldPassword, user.FieldName, user.FieldRole:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -109,6 +111,12 @@ func (u *User) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
 				u.CreatedAt = value.Time
+			}
+		case user.FieldRole:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field role", values[i])
+			} else if value.Valid {
+				u.Role = user.Role(value.String)
 			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
@@ -162,6 +170,9 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(u.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("role=")
+	builder.WriteString(fmt.Sprintf("%v", u.Role))
 	builder.WriteByte(')')
 	return builder.String()
 }

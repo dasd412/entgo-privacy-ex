@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"privacy-ex/pkg/ent/user"
 	"time"
 )
 
@@ -76,6 +77,7 @@ type CreateUserInput struct {
 	Password  string
 	Name      string
 	CreatedAt *time.Time
+	Role      user.Role
 	PostsID   *int
 }
 
@@ -87,6 +89,7 @@ func (i *CreateUserInput) Mutate(m *UserMutation) {
 	if v := i.CreatedAt; v != nil {
 		m.SetCreatedAt(*v)
 	}
+	m.SetRole(i.Role)
 	if v := i.PostsID; v != nil {
 		m.SetPostsID(*v)
 	}
@@ -103,6 +106,7 @@ type UpdateUserInput struct {
 	Email      *string
 	Password   *string
 	Name       *string
+	Role       *user.Role
 	ClearPosts bool
 	PostsID    *int
 }
@@ -117,6 +121,9 @@ func (i *UpdateUserInput) Mutate(m *UserMutation) {
 	}
 	if v := i.Name; v != nil {
 		m.SetName(*v)
+	}
+	if v := i.Role; v != nil {
+		m.SetRole(*v)
 	}
 	if i.ClearPosts {
 		m.ClearPosts()

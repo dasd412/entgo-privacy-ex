@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"privacy-ex/pkg/ent"
+	"privacy-ex/pkg/ent/user"
 	"privacy-ex/pkg/graph/gen/graphqlmodel"
 	"strconv"
 	"sync"
@@ -110,6 +111,7 @@ type ComplexityRoot struct {
 		Name      func(childComplexity int) int
 		Password  func(childComplexity int) int
 		Posts     func(childComplexity int) int
+		Role      func(childComplexity int) int
 	}
 
 	UserConnection struct {
@@ -490,6 +492,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Posts(childComplexity), true
 
+	case "User.role":
+		if e.complexity.User.Role == nil {
+			break
+		}
+
+		return e.complexity.User.Role(childComplexity), true
+
 	case "UserConnection.edges":
 		if e.complexity.UserConnection.Edges == nil {
 			break
@@ -689,6 +698,10 @@ input CreateUserInput {
   생성 날짜
   """
   createdAt: Time
+  """
+  인가 권한
+  """
+  role: UserRole!
   postsID: ID
 }
 """
@@ -996,6 +1009,10 @@ input UpdateUserInput {
   이름
   """
   name: String
+  """
+  인가 권한
+  """
+  role: UserRole
   postsID: ID
   clearPosts: Boolean
 }
@@ -1017,6 +1034,10 @@ type User implements Node {
   생성 날짜
   """
   createdAt: Time!
+  """
+  인가 권한
+  """
+  role: UserRole!
   posts: Post
 }
 """
@@ -1048,6 +1069,14 @@ type UserEdge {
   A cursor for use in pagination.
   """
   cursor: Cursor!
+}
+"""
+UserRole is enum for the field role
+"""
+enum UserRole @goModel(model: "privacy-ex/pkg/ent/user.Role") {
+  admin
+  owner
+  viewer
 }
 """
 UserWhereInput is used for filtering User objects.
@@ -1127,6 +1156,13 @@ input UserWhereInput {
   createdAtGTE: Time
   createdAtLT: Time
   createdAtLTE: Time
+  """
+  role field predicates
+  """
+  role: UserRole
+  roleNEQ: UserRole
+  roleIn: [UserRole!]
+  roleNotIn: [UserRole!]
   """
   posts edge predicates
   """
@@ -1942,6 +1978,8 @@ func (ec *executionContext) fieldContext_AuthPayload_user(_ context.Context, fie
 				return ec.fieldContext_User_name(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
+			case "role":
+				return ec.fieldContext_User_role(ctx, field)
 			case "posts":
 				return ec.fieldContext_User_posts(ctx, field)
 			}
@@ -2900,6 +2938,8 @@ func (ec *executionContext) fieldContext_Post_author(_ context.Context, field gr
 				return ec.fieldContext_User_name(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
+			case "role":
+				return ec.fieldContext_User_role(ctx, field)
 			case "posts":
 				return ec.fieldContext_User_posts(ctx, field)
 			}
@@ -3437,6 +3477,8 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 				return ec.fieldContext_User_name(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
+			case "role":
+				return ec.fieldContext_User_role(ctx, field)
 			case "posts":
 				return ec.fieldContext_User_posts(ctx, field)
 			}
@@ -3927,6 +3969,50 @@ func (ec *executionContext) fieldContext_User_createdAt(_ context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _User_role(ctx context.Context, field graphql.CollectedField, obj *ent.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_role(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Role, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(user.Role)
+	fc.Result = res
+	return ec.marshalNUserRole2privacyᚑexᚋpkgᚋentᚋuserᚐRole(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_role(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type UserRole does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _User_posts(ctx context.Context, field graphql.CollectedField, obj *ent.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_posts(ctx, field)
 	if err != nil {
@@ -4175,6 +4261,8 @@ func (ec *executionContext) fieldContext_UserEdge_node(_ context.Context, field 
 				return ec.fieldContext_User_name(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
+			case "role":
+				return ec.fieldContext_User_role(ctx, field)
 			case "posts":
 				return ec.fieldContext_User_posts(ctx, field)
 			}
@@ -6282,7 +6370,7 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "password", "name", "createdAt", "postsID"}
+	fieldsInOrder := [...]string{"email", "password", "name", "createdAt", "role", "postsID"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -6317,6 +6405,13 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 				return it, err
 			}
 			it.CreatedAt = data
+		case "role":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
+			data, err := ec.unmarshalNUserRole2privacyᚑexᚋpkgᚋentᚋuserᚐRole(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Role = data
 		case "postsID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postsID"))
 			data, err := ec.unmarshalOID2ᚖint(ctx, v)
@@ -6818,7 +6913,7 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "password", "name", "postsID", "clearPosts"}
+	fieldsInOrder := [...]string{"email", "password", "name", "role", "postsID", "clearPosts"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -6846,6 +6941,13 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 				return it, err
 			}
 			it.Name = data
+		case "role":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
+			data, err := ec.unmarshalOUserRole2ᚖprivacyᚑexᚋpkgᚋentᚋuserᚐRole(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Role = data
 		case "postsID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("postsID"))
 			data, err := ec.unmarshalOID2ᚖint(ctx, v)
@@ -6873,7 +6975,7 @@ func (ec *executionContext) unmarshalInputUserWhereInput(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "email", "emailNEQ", "emailIn", "emailNotIn", "emailGT", "emailGTE", "emailLT", "emailLTE", "emailContains", "emailHasPrefix", "emailHasSuffix", "emailEqualFold", "emailContainsFold", "password", "passwordNEQ", "passwordIn", "passwordNotIn", "passwordGT", "passwordGTE", "passwordLT", "passwordLTE", "passwordContains", "passwordHasPrefix", "passwordHasSuffix", "passwordEqualFold", "passwordContainsFold", "name", "nameNEQ", "nameIn", "nameNotIn", "nameGT", "nameGTE", "nameLT", "nameLTE", "nameContains", "nameHasPrefix", "nameHasSuffix", "nameEqualFold", "nameContainsFold", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "hasPosts", "hasPostsWith"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "email", "emailNEQ", "emailIn", "emailNotIn", "emailGT", "emailGTE", "emailLT", "emailLTE", "emailContains", "emailHasPrefix", "emailHasSuffix", "emailEqualFold", "emailContainsFold", "password", "passwordNEQ", "passwordIn", "passwordNotIn", "passwordGT", "passwordGTE", "passwordLT", "passwordLTE", "passwordContains", "passwordHasPrefix", "passwordHasSuffix", "passwordEqualFold", "passwordContainsFold", "name", "nameNEQ", "nameIn", "nameNotIn", "nameGT", "nameGTE", "nameLT", "nameLTE", "nameContains", "nameHasPrefix", "nameHasSuffix", "nameEqualFold", "nameContainsFold", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "role", "roleNEQ", "roleIn", "roleNotIn", "hasPosts", "hasPostsWith"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7286,6 +7388,34 @@ func (ec *executionContext) unmarshalInputUserWhereInput(ctx context.Context, ob
 				return it, err
 			}
 			it.CreatedAtLTE = data
+		case "role":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
+			data, err := ec.unmarshalOUserRole2ᚖprivacyᚑexᚋpkgᚋentᚋuserᚐRole(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Role = data
+		case "roleNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roleNEQ"))
+			data, err := ec.unmarshalOUserRole2ᚖprivacyᚑexᚋpkgᚋentᚋuserᚐRole(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RoleNEQ = data
+		case "roleIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roleIn"))
+			data, err := ec.unmarshalOUserRole2ᚕprivacyᚑexᚋpkgᚋentᚋuserᚐRoleᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RoleIn = data
+		case "roleNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roleNotIn"))
+			data, err := ec.unmarshalOUserRole2ᚕprivacyᚑexᚋpkgᚋentᚋuserᚐRoleᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RoleNotIn = data
 		case "hasPosts":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasPosts"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -7935,6 +8065,11 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "createdAt":
 			out.Values[i] = ec._User_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "role":
+			out.Values[i] = ec._User_role(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
@@ -8701,6 +8836,16 @@ func (ec *executionContext) marshalNUserConnection2ᚖprivacyᚑexᚋpkgᚋent�
 	return ec._UserConnection(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNUserRole2privacyᚑexᚋpkgᚋentᚋuserᚐRole(ctx context.Context, v any) (user.Role, error) {
+	var res user.Role
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUserRole2privacyᚑexᚋpkgᚋentᚋuserᚐRole(ctx context.Context, sel ast.SelectionSet, v user.Role) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNUserWhereInput2ᚖprivacyᚑexᚋpkgᚋentᚐUserWhereInput(ctx context.Context, v any) (*ent.UserWhereInput, error) {
 	res, err := ec.unmarshalInputUserWhereInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
@@ -9351,6 +9496,89 @@ func (ec *executionContext) marshalOUserEdge2ᚖprivacyᚑexᚋpkgᚋentᚐUserE
 		return graphql.Null
 	}
 	return ec._UserEdge(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOUserRole2ᚕprivacyᚑexᚋpkgᚋentᚋuserᚐRoleᚄ(ctx context.Context, v any) ([]user.Role, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]user.Role, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNUserRole2privacyᚑexᚋpkgᚋentᚋuserᚐRole(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOUserRole2ᚕprivacyᚑexᚋpkgᚋentᚋuserᚐRoleᚄ(ctx context.Context, sel ast.SelectionSet, v []user.Role) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNUserRole2privacyᚑexᚋpkgᚋentᚋuserᚐRole(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOUserRole2ᚖprivacyᚑexᚋpkgᚋentᚋuserᚐRole(ctx context.Context, v any) (*user.Role, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(user.Role)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOUserRole2ᚖprivacyᚑexᚋpkgᚋentᚋuserᚐRole(ctx context.Context, sel ast.SelectionSet, v *user.Role) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOUserWhereInput2ᚕᚖprivacyᚑexᚋpkgᚋentᚐUserWhereInputᚄ(ctx context.Context, v any) ([]*ent.UserWhereInput, error) {

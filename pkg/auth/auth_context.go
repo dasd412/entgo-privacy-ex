@@ -29,3 +29,16 @@ func GetUserId(ctx context.Context) (int, error) {
 
 	return userId, nil
 }
+
+type authorityContextKey string
+
+const userAuthorityKey authorityContextKey = "userAuthority"
+
+func WithUserAuthority(ctx context.Context, v Authority) context.Context {
+	return context.WithValue(ctx, userAuthorityKey, v)
+}
+
+func GetUserAuthority(ctx context.Context) Authority {
+	v, _ := ctx.Value(userAuthorityKey).(Authority)
+	return v
+}
