@@ -1,19 +1,13 @@
 package auth
 
 import (
-	"context"
 	"encoding/json"
-	"errors"
 	"github.com/golang-jwt/jwt/v5"
 	"io"
 	"net/http"
 	"privacy-ex/pkg/graph/httperror"
 	"strings"
 )
-
-type contextKey string
-
-const UserIDKey contextKey = "userID"
 
 var requestData struct {
 	OperationName string `json:"operationName"`
@@ -23,7 +17,8 @@ var requestData struct {
 var publicOperations = map[string]bool{
 	"signup":             true,
 	"login":              true,
-	"IntrospectionQuery": true,
+	"IntrospectionQuery": true, //graphql playground 용
+	"post":               true, // 기본적으로 모든 사용자가 조회 가능
 }
 
 func getOperationName(r *http.Request) (string, error) {
@@ -113,16 +108,8 @@ func JWTMiddleware(next http.Handler) http.Handler {
 			}
 
 			// 사용자 id를 context에 저장
-			ctx := context.WithValue(r.Context(), UserIDKey, userId)
+			ctx := WithUserId(r.Context(), userId)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		},
 	)
-}
-
-func GetUserId(ctx context.Context) (string, error) {
-	userId, ok := ctx.Value(UserIDKey).(string)
-	if !ok {
-		return "", errors.New("user ID not found in context")
-	}
-	return userId, nil
 }
