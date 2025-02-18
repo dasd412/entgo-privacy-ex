@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/http"
 	"privacy-ex/pkg/ent/user"
-	"privacy-ex/pkg/graph/httperror"
+	"privacy-ex/pkg/httperror"
 	"strings"
 )
 

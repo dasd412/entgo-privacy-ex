@@ -336,7 +336,8 @@ func (c *PostClient) QueryAuthor(po *Post) *UserQuery {
 
 // Hooks returns the client hooks.
 func (c *PostClient) Hooks() []Hook {
-	return c.hooks.Post
+	hooks := c.hooks.Post
+	return append(hooks[:len(hooks):len(hooks)], post.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.

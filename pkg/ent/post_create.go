@@ -79,7 +79,9 @@ func (pc *PostCreate) Mutation() *PostMutation {
 
 // Save creates the Post in the database.
 func (pc *PostCreate) Save(ctx context.Context) (*Post, error) {
-	pc.defaults()
+	if err := pc.defaults(); err != nil {
+		return nil, err
+	}
 	return withHooks(ctx, pc.sqlSave, pc.mutation, pc.hooks)
 }
 
@@ -106,15 +108,22 @@ func (pc *PostCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (pc *PostCreate) defaults() {
+func (pc *PostCreate) defaults() error {
 	if _, ok := pc.mutation.CreatedAt(); !ok {
+		if post.DefaultCreatedAt == nil {
+			return fmt.Errorf("ent: uninitialized post.DefaultCreatedAt (forgotten import ent/runtime?)")
+		}
 		v := post.DefaultCreatedAt()
 		pc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := pc.mutation.UpdatedAt(); !ok {
+		if post.DefaultUpdatedAt == nil {
+			return fmt.Errorf("ent: uninitialized post.DefaultUpdatedAt (forgotten import ent/runtime?)")
+		}
 		v := post.DefaultUpdatedAt()
 		pc.mutation.SetUpdatedAt(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

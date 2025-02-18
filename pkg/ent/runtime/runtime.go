@@ -17,6 +17,15 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	post.Policy = privacy.NewPolicies(schema.Post{})
+	post.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := post.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
 	postFields := schema.Post{}.Fields()
 	_ = postFields
 	// postDescTitle is the schema descriptor for title field.

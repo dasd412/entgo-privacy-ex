@@ -14,6 +14,7 @@ func WithUserId(ctx context.Context, userId string) context.Context {
 	return context.WithValue(ctx, userIDKey, userId)
 }
 
+// UserIdFromContext MSA인 경우, userId를 ctx에서 받아와야 함
 func UserIdFromContext(ctx context.Context) (int, error) {
 	userIdString, ok := ctx.Value(userIDKey).(string)
 

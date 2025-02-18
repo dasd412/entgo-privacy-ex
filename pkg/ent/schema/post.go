@@ -3,9 +3,11 @@ package schema
 import (
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
+	"entgo.io/ent/privacy"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"privacy-ex/pkg/auth"
 	"time"
 )
 
@@ -44,6 +46,19 @@ func (Post) Edges() []ent.Edge {
 			Unique().
 			Required().
 			Comment("게시물 작성자와의 관계"),
+	}
+}
+
+func (Post) Policy() ent.Policy {
+	return privacy.Policy{
+		Mutation: privacy.MutationPolicy{
+			auth.DenyIfNoAuthority(),
+			auth.AllowIfAdminOrAuthor(),
+			privacy.AlwaysDenyRule(),
+		},
+		Query: privacy.QueryPolicy{
+			privacy.AlwaysAllowRule(),
+		},
 	}
 }
 

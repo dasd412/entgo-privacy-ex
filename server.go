@@ -13,8 +13,8 @@ import (
 	"privacy-ex/pkg/auth"
 	"privacy-ex/pkg/ent"
 	_ "privacy-ex/pkg/ent/runtime"
-	"privacy-ex/pkg/graph/httperror"
 	"privacy-ex/pkg/graph/resolver"
+	"privacy-ex/pkg/httperror"
 	"strconv"
 	"time"
 )

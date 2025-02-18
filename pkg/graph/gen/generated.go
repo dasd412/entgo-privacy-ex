@@ -1184,7 +1184,7 @@ input UserWhereInput {
     login(email: String!, password: String!): AuthPayload!
     refreshToken(refreshToken: String!): String!
 
-    updateUser(id: ID!, input: UpdateUserInput!): User! # 사용자만 수정 가능
+    updateUser(id: ID!, input: UpdateUserInput!): User! # 관리자, 사용자만 수정 가능
     deleteUser(id: ID!): Boolean! # 관리자, 사용자만 삭제 가능
 
     createPost(input: CreatePostInput!): Post! #  기본적으로 모든 사용자가 생성 가능
@@ -1194,7 +1194,7 @@ input UserWhereInput {
 
 extend type Query {
     user(id: ID!): User! # 기본적으로 모든 사용자가 조회 가능
-    post(id:ID!): Post!  # 기본적으로 모든 사용자가 조회 가능
+    post(id:ID!): Post!  # 로그인 안해도 조회 가능
 }
 
 type AuthPayload{
