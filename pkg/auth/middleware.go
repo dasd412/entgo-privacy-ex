@@ -17,24 +17,55 @@ var publicOperations = map[string]bool{
 	"IntrospectionQuery": true, //graphql playground 용
 }
 
+func ApiOperationNameMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		operationName, err := getOperationName(r)
+
+		if err != nil {
+			httperror.SetErrorResponse(w, r.Context(), &httperror.HTTPError{
+				StatusCode: http.StatusBadRequest,
+				Message:    "Invalid operation: " + err.Error(),
+			})
+			return
+		}
+
+		// rule.go의 AllowIfSignupOrLogin() 등에서 API 이름에 따라 세밀하게 조정하기 위함.
+		ctx := WithApiOperationName(r.Context(), operationName)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+var requestData struct {
+	OperationName string `json:"operationName"`
+}
+
+func getOperationName(r *http.Request) (string, error) {
+	// graphql 요청 본문 (json) 읽기
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return "", err
+	}
+
+	//json 파싱
+	err = json.Unmarshal(body, &requestData)
+	if err != nil {
+		return "", err
+	}
+
+	//요청 본문을 다시 복원
+	r.Body = io.NopCloser(strings.NewReader(string(body)))
+
+	return requestData.OperationName, nil
+}
+
 func JWTMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			operationName, err := getOperationName(r)
-
-			if err != nil {
-				httperror.SetErrorResponse(w, r.Context(), &httperror.HTTPError{
-					StatusCode: http.StatusBadRequest,
-					Message:    "Invalid operation: " + err.Error(),
-				})
-				return
-			}
+			operationName, _ := ApiOperationNameFromContext(r.Context())
 
 			// 인증이 필요없는 요청이면 JWT 검증을 건너뛰고 API 이름을 ctx에 담음.
-			// rule.go의 AllowIfSignupOrLogin() 등에서 API 이름에 따라 세밀하게 조정하기 위함.
 			if publicOperations[operationName] {
-				ctx := WithApiOperationName(r.Context(), operationName)
-				next.ServeHTTP(w, r.WithContext(ctx))
+				next.ServeHTTP(w, r)
 				return
 			}
 
@@ -102,27 +133,4 @@ func JWTMiddleware(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r.WithContext(ctx))
 		},
 	)
-}
-
-var requestData struct {
-	OperationName string `json:"operationName"`
-}
-
-func getOperationName(r *http.Request) (string, error) {
-	// graphql 요청 본문 (json) 읽기
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		return "", err
-	}
-
-	//json 파싱
-	err = json.Unmarshal(body, &requestData)
-	if err != nil {
-		return "", err
-	}
-
-	//요청 본문을 다시 복원
-	r.Body = io.NopCloser(strings.NewReader(string(body)))
-
-	return requestData.OperationName, nil
 }

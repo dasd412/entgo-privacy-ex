@@ -51,6 +51,11 @@ func WithApiOperationName(ctx context.Context, name string) context.Context {
 	return context.WithValue(ctx, apiOperationNameKey, name)
 }
 
-func ApiOperationNameFromContext(ctx context.Context) string {
-	return ctx.Value(apiOperationNameKey).(string)
+func ApiOperationNameFromContext(ctx context.Context) (string, error) {
+	operationName, ok := ctx.Value(apiOperationNameKey).(string)
+	if !ok {
+		return "", errors.New("operationName not found in context")
+	}
+
+	return operationName, nil
 }

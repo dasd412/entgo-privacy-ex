@@ -18,7 +18,11 @@ func DenyIfNoAuthority() privacy.QueryMutationRule {
 
 func AllowIfSignupOrLogin() privacy.QueryMutationRule {
 	return privacy.ContextQueryMutationRule(func(ctx context.Context) error {
-		apiOperationName := ApiOperationNameFromContext(ctx)
+		apiOperationName, err := ApiOperationNameFromContext(ctx)
+
+		if err != nil {
+			return privacy.Deny
+		}
 
 		if apiOperationName == "signup" || apiOperationName == "login" {
 			return privacy.Allow
