@@ -19,26 +19,6 @@ var publicOperations = map[string]bool{
 	"signup":             true,
 	"login":              true,
 	"IntrospectionQuery": true, //graphql playground 용
-	"post":               true, // 기본적으로 모든 사용자가 조회 가능
-}
-
-func getOperationName(r *http.Request) (string, error) {
-	// graphql 요청 본문 (json) 읽기
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		return "", err
-	}
-
-	//json 파싱
-	err = json.Unmarshal(body, &requestData)
-	if err != nil {
-		return "", err
-	}
-
-	//요청 본문을 다시 복원
-	r.Body = io.NopCloser(strings.NewReader(string(body)))
-
-	return requestData.OperationName, nil
 }
 
 func JWTMiddleware(next http.Handler) http.Handler {
@@ -124,4 +104,23 @@ func JWTMiddleware(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r.WithContext(ctx))
 		},
 	)
+}
+
+func getOperationName(r *http.Request) (string, error) {
+	// graphql 요청 본문 (json) 읽기
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return "", err
+	}
+
+	//json 파싱
+	err = json.Unmarshal(body, &requestData)
+	if err != nil {
+		return "", err
+	}
+
+	//요청 본문을 다시 복원
+	r.Body = io.NopCloser(strings.NewReader(string(body)))
+
+	return requestData.OperationName, nil
 }

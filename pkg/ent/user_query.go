@@ -5,6 +5,7 @@ package ent
 import (
 	"context"
 	"database/sql/driver"
+	"errors"
 	"fmt"
 	"math"
 	"privacy-ex/pkg/ent/post"
@@ -366,6 +367,12 @@ func (uq *UserQuery) prepareQuery(ctx context.Context) error {
 		}
 		uq.sql = prev
 	}
+	if user.Policy == nil {
+		return errors.New("ent: uninitialized user.Policy (forgotten import ent/runtime?)")
+	}
+	if err := user.Policy.EvalQuery(ctx, uq); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -419,9 +426,7 @@ func (uq *UserQuery) loadPosts(ctx context.Context, query *PostQuery, nodes []*U
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
 	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(post.FieldAuthorID)
-	}
+	query.withFKs = true
 	query.Where(predicate.Post(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(user.PostsColumn), fks...))
 	}))
@@ -430,10 +435,13 @@ func (uq *UserQuery) loadPosts(ctx context.Context, query *PostQuery, nodes []*U
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.AuthorID
-		node, ok := nodeids[fk]
+		fk := n.user_posts
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "user_posts" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "author_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "user_posts" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

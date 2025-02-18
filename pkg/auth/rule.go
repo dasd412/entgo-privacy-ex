@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 	"entgo.io/ent"
-	"privacy-ex/pkg/ent/privacy"
+	"entgo.io/ent/privacy"
 )
 
 func DenyIfNoAuthority() privacy.QueryMutationRule {
@@ -17,20 +17,15 @@ func DenyIfNoAuthority() privacy.QueryMutationRule {
 	})
 }
 
-func DenyIfGuest() privacy.QueryMutationRule {
-	return privacy.ContextQueryMutationRule(func(ctx context.Context) error {
-		role := UserAuthorityFromContext(ctx)
+func AllowIfSignupOrLogin() privacy.MutationRule {
+	return privacy.MutationRuleFunc(func(ctx context.Context, mutation ent.Mutation) error {
 
-		if role.IsGuest() {
-			return privacy.Deny
-		}
-
-		return privacy.Skip
+		return nil
 	})
 }
 
-func AllowIfAdminOrAuthor() privacy.MutationRule {
-	return privacy.MutationRuleFunc(func(ctx context.Context, mutation ent.Mutation) error {
+func AllowIfAdminOrAuthor() privacy.QueryMutationRule {
+	return privacy.ContextQueryMutationRule(func(ctx context.Context) error {
 		role := UserAuthorityFromContext(ctx)
 
 		if role.IsAdmin() || role.IsAuthor() {

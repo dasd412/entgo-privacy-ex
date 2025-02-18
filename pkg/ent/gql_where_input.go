@@ -78,12 +78,6 @@ type PostWhereInput struct {
 	UpdatedAtLT    *time.Time  `json:"updatedAtLT,omitempty"`
 	UpdatedAtLTE   *time.Time  `json:"updatedAtLTE,omitempty"`
 
-	// "author_id" field predicates.
-	AuthorID      *int  `json:"authorID,omitempty"`
-	AuthorIDNEQ   *int  `json:"authorIDNEQ,omitempty"`
-	AuthorIDIn    []int `json:"authorIDIn,omitempty"`
-	AuthorIDNotIn []int `json:"authorIDNotIn,omitempty"`
-
 	// "author" edge predicates.
 	HasAuthor     *bool             `json:"hasAuthor,omitempty"`
 	HasAuthorWith []*UserWhereInput `json:"hasAuthorWith,omitempty"`
@@ -309,18 +303,6 @@ func (i *PostWhereInput) P() (predicate.Post, error) {
 	}
 	if i.UpdatedAtLTE != nil {
 		predicates = append(predicates, post.UpdatedAtLTE(*i.UpdatedAtLTE))
-	}
-	if i.AuthorID != nil {
-		predicates = append(predicates, post.AuthorIDEQ(*i.AuthorID))
-	}
-	if i.AuthorIDNEQ != nil {
-		predicates = append(predicates, post.AuthorIDNEQ(*i.AuthorIDNEQ))
-	}
-	if len(i.AuthorIDIn) > 0 {
-		predicates = append(predicates, post.AuthorIDIn(i.AuthorIDIn...))
-	}
-	if len(i.AuthorIDNotIn) > 0 {
-		predicates = append(predicates, post.AuthorIDNotIn(i.AuthorIDNotIn...))
 	}
 
 	if i.HasAuthor != nil {

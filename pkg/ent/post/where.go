@@ -75,11 +75,6 @@ func UpdatedAt(v time.Time) predicate.Post {
 	return predicate.Post(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
-// AuthorID applies equality check predicate on the "author_id" field. It's identical to AuthorIDEQ.
-func AuthorID(v int) predicate.Post {
-	return predicate.Post(sql.FieldEQ(FieldAuthorID, v))
-}
-
 // TitleEQ applies the EQ predicate on the "title" field.
 func TitleEQ(v string) predicate.Post {
 	return predicate.Post(sql.FieldEQ(FieldTitle, v))
@@ -288,26 +283,6 @@ func UpdatedAtLT(v time.Time) predicate.Post {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.Post {
 	return predicate.Post(sql.FieldLTE(FieldUpdatedAt, v))
-}
-
-// AuthorIDEQ applies the EQ predicate on the "author_id" field.
-func AuthorIDEQ(v int) predicate.Post {
-	return predicate.Post(sql.FieldEQ(FieldAuthorID, v))
-}
-
-// AuthorIDNEQ applies the NEQ predicate on the "author_id" field.
-func AuthorIDNEQ(v int) predicate.Post {
-	return predicate.Post(sql.FieldNEQ(FieldAuthorID, v))
-}
-
-// AuthorIDIn applies the In predicate on the "author_id" field.
-func AuthorIDIn(vs ...int) predicate.Post {
-	return predicate.Post(sql.FieldIn(FieldAuthorID, vs...))
-}
-
-// AuthorIDNotIn applies the NotIn predicate on the "author_id" field.
-func AuthorIDNotIn(vs ...int) predicate.Post {
-	return predicate.Post(sql.FieldNotIn(FieldAuthorID, vs...))
 }
 
 // HasAuthor applies the HasEdge predicate on the "author" edge.

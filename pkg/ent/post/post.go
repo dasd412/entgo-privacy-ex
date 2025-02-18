@@ -22,8 +22,6 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
-	// FieldAuthorID holds the string denoting the author_id field in the database.
-	FieldAuthorID = "author_id"
 	// EdgeAuthor holds the string denoting the author edge name in mutations.
 	EdgeAuthor = "author"
 	// Table holds the table name of the post in the database.
@@ -34,7 +32,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	AuthorInverseTable = "users"
 	// AuthorColumn is the table column denoting the author relation/edge.
-	AuthorColumn = "author_id"
+	AuthorColumn = "user_posts"
 )
 
 // Columns holds all SQL columns for post fields.
@@ -44,13 +42,23 @@ var Columns = []string{
 	FieldContent,
 	FieldCreatedAt,
 	FieldUpdatedAt,
-	FieldAuthorID,
+}
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the "posts"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"user_posts",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -94,11 +102,6 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updated_at field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
-}
-
-// ByAuthorID orders the results by the author_id field.
-func ByAuthorID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAuthorID, opts...).ToFunc()
 }
 
 // ByAuthorField orders the results by author field.

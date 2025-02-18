@@ -289,51 +289,27 @@ func (m *PostMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
-// SetAuthorID sets the "author_id" field.
-func (m *PostMutation) SetAuthorID(i int) {
-	m.author = &i
-}
-
-// AuthorID returns the value of the "author_id" field in the mutation.
-func (m *PostMutation) AuthorID() (r int, exists bool) {
-	v := m.author
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldAuthorID returns the old "author_id" field's value of the Post entity.
-// If the Post object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PostMutation) OldAuthorID(ctx context.Context) (v int, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldAuthorID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldAuthorID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAuthorID: %w", err)
-	}
-	return oldValue.AuthorID, nil
-}
-
-// ResetAuthorID resets all changes to the "author_id" field.
-func (m *PostMutation) ResetAuthorID() {
-	m.author = nil
+// SetAuthorID sets the "author" edge to the User entity by id.
+func (m *PostMutation) SetAuthorID(id int) {
+	m.author = &id
 }
 
 // ClearAuthor clears the "author" edge to the User entity.
 func (m *PostMutation) ClearAuthor() {
 	m.clearedauthor = true
-	m.clearedFields[post.FieldAuthorID] = struct{}{}
 }
 
 // AuthorCleared reports if the "author" edge to the User entity was cleared.
 func (m *PostMutation) AuthorCleared() bool {
 	return m.clearedauthor
+}
+
+// AuthorID returns the "author" edge ID in the mutation.
+func (m *PostMutation) AuthorID() (id int, exists bool) {
+	if m.author != nil {
+		return *m.author, true
+	}
+	return
 }
 
 // AuthorIDs returns the "author" edge IDs in the mutation.
@@ -386,7 +362,7 @@ func (m *PostMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PostMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 4)
 	if m.title != nil {
 		fields = append(fields, post.FieldTitle)
 	}
@@ -398,9 +374,6 @@ func (m *PostMutation) Fields() []string {
 	}
 	if m.updated_at != nil {
 		fields = append(fields, post.FieldUpdatedAt)
-	}
-	if m.author != nil {
-		fields = append(fields, post.FieldAuthorID)
 	}
 	return fields
 }
@@ -418,8 +391,6 @@ func (m *PostMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case post.FieldUpdatedAt:
 		return m.UpdatedAt()
-	case post.FieldAuthorID:
-		return m.AuthorID()
 	}
 	return nil, false
 }
@@ -437,8 +408,6 @@ func (m *PostMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldCreatedAt(ctx)
 	case post.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
-	case post.FieldAuthorID:
-		return m.OldAuthorID(ctx)
 	}
 	return nil, fmt.Errorf("unknown Post field %s", name)
 }
@@ -476,13 +445,6 @@ func (m *PostMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUpdatedAt(v)
 		return nil
-	case post.FieldAuthorID:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAuthorID(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Post field %s", name)
 }
@@ -490,16 +452,13 @@ func (m *PostMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *PostMutation) AddedFields() []string {
-	var fields []string
-	return fields
+	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *PostMutation) AddedField(name string) (ent.Value, bool) {
-	switch name {
-	}
 	return nil, false
 }
 
@@ -546,9 +505,6 @@ func (m *PostMutation) ResetField(name string) error {
 		return nil
 	case post.FieldUpdatedAt:
 		m.ResetUpdatedAt()
-		return nil
-	case post.FieldAuthorID:
-		m.ResetAuthorID()
 		return nil
 	}
 	return fmt.Errorf("unknown Post field %s", name)

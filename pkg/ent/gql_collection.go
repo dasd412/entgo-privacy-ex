@@ -42,10 +42,6 @@ func (po *PostQuery) collectField(ctx context.Context, oneNode bool, opCtx *grap
 				return err
 			}
 			po.withAuthor = query
-			if _, ok := fieldSeen[post.FieldAuthorID]; !ok {
-				selectedFields = append(selectedFields, post.FieldAuthorID)
-				fieldSeen[post.FieldAuthorID] = struct{}{}
-			}
 		case "title":
 			if _, ok := fieldSeen[post.FieldTitle]; !ok {
 				selectedFields = append(selectedFields, post.FieldTitle)
@@ -65,11 +61,6 @@ func (po *PostQuery) collectField(ctx context.Context, oneNode bool, opCtx *grap
 			if _, ok := fieldSeen[post.FieldUpdatedAt]; !ok {
 				selectedFields = append(selectedFields, post.FieldUpdatedAt)
 				fieldSeen[post.FieldUpdatedAt] = struct{}{}
-			}
-		case "authorID":
-			if _, ok := fieldSeen[post.FieldAuthorID]; !ok {
-				selectedFields = append(selectedFields, post.FieldAuthorID)
-				fieldSeen[post.FieldAuthorID] = struct{}{}
 			}
 		case "id":
 		case "__typename":

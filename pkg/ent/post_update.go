@@ -63,17 +63,9 @@ func (pu *PostUpdate) SetUpdatedAt(t time.Time) *PostUpdate {
 	return pu
 }
 
-// SetAuthorID sets the "author_id" field.
-func (pu *PostUpdate) SetAuthorID(i int) *PostUpdate {
-	pu.mutation.SetAuthorID(i)
-	return pu
-}
-
-// SetNillableAuthorID sets the "author_id" field if the given value is not nil.
-func (pu *PostUpdate) SetNillableAuthorID(i *int) *PostUpdate {
-	if i != nil {
-		pu.SetAuthorID(*i)
-	}
+// SetAuthorID sets the "author" edge to the User entity by ID.
+func (pu *PostUpdate) SetAuthorID(id int) *PostUpdate {
+	pu.mutation.SetAuthorID(id)
 	return pu
 }
 
@@ -246,17 +238,9 @@ func (puo *PostUpdateOne) SetUpdatedAt(t time.Time) *PostUpdateOne {
 	return puo
 }
 
-// SetAuthorID sets the "author_id" field.
-func (puo *PostUpdateOne) SetAuthorID(i int) *PostUpdateOne {
-	puo.mutation.SetAuthorID(i)
-	return puo
-}
-
-// SetNillableAuthorID sets the "author_id" field if the given value is not nil.
-func (puo *PostUpdateOne) SetNillableAuthorID(i *int) *PostUpdateOne {
-	if i != nil {
-		puo.SetAuthorID(*i)
-	}
+// SetAuthorID sets the "author" edge to the User entity by ID.
+func (puo *PostUpdateOne) SetAuthorID(id int) *PostUpdateOne {
+	puo.mutation.SetAuthorID(id)
 	return puo
 }
 

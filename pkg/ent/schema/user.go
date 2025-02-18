@@ -4,9 +4,11 @@ import (
 	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/privacy"
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"privacy-ex/pkg/auth"
 	"time"
 )
 
@@ -42,6 +44,22 @@ func (User) Edges() []ent.Edge {
 			Annotations(
 				entsql.OnDelete(entsql.Cascade),
 			),
+	}
+}
+
+func (User) Policy() ent.Policy {
+	return privacy.Policy{
+		Mutation: privacy.MutationPolicy{
+			// 회원 가입, 로그인 같은 경우는 전부 풀어놔야 함.
+			// 다른 경우에는 전부 사용자 이상만 권한이 있어야 함.
+			auth.AllowIfAdminOrAuthor(),
+			privacy.AlwaysDenyRule(),
+		},
+		Query: privacy.QueryPolicy{
+			auth.DenyIfNoAuthority(),
+			auth.AllowIfAdminOrAuthor(),
+			privacy.AlwaysDenyRule(),
+		},
 	}
 }
 

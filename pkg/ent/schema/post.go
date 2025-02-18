@@ -33,9 +33,6 @@ func (Post) Fields() []ent.Field {
 			Default(time.Now).
 			UpdateDefault(time.Now).
 			Comment("게시물 수정 시간"),
-
-		field.Int("author_id").
-			Comment("게시물 작성자 ID"),
 	}
 }
 
@@ -44,7 +41,6 @@ func (Post) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("author", User.Type).
 			Ref("posts").
-			Field("author_id").
 			Unique().
 			Required().
 			Comment("게시물 작성자와의 관계"),

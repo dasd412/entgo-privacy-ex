@@ -26,11 +26,10 @@ type Post struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// 게시물 수정 시간
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// 게시물 작성자 ID
-	AuthorID int `json:"author_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PostQuery when eager-loading is set.
 	Edges        PostEdges `json:"edges"`
+	user_posts   *int
 	selectValues sql.SelectValues
 }
 
@@ -61,12 +60,14 @@ func (*Post) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case post.FieldID, post.FieldAuthorID:
+		case post.FieldID:
 			values[i] = new(sql.NullInt64)
 		case post.FieldTitle, post.FieldContent:
 			values[i] = new(sql.NullString)
 		case post.FieldCreatedAt, post.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
+		case post.ForeignKeys[0]: // user_posts
+			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -112,11 +113,12 @@ func (po *Post) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				po.UpdatedAt = value.Time
 			}
-		case post.FieldAuthorID:
+		case post.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field author_id", values[i])
+				return fmt.Errorf("unexpected type %T for edge-field user_posts", value)
 			} else if value.Valid {
-				po.AuthorID = int(value.Int64)
+				po.user_posts = new(int)
+				*po.user_posts = int(value.Int64)
 			}
 		default:
 			po.selectValues.Set(columns[i], values[i])
@@ -170,9 +172,6 @@ func (po *Post) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(po.UpdatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("author_id=")
-	builder.WriteString(fmt.Sprintf("%v", po.AuthorID))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -61,9 +61,9 @@ func (pc *PostCreate) SetNillableUpdatedAt(t *time.Time) *PostCreate {
 	return pc
 }
 
-// SetAuthorID sets the "author_id" field.
-func (pc *PostCreate) SetAuthorID(i int) *PostCreate {
-	pc.mutation.SetAuthorID(i)
+// SetAuthorID sets the "author" edge to the User entity by ID.
+func (pc *PostCreate) SetAuthorID(id int) *PostCreate {
+	pc.mutation.SetAuthorID(id)
 	return pc
 }
 
@@ -136,9 +136,6 @@ func (pc *PostCreate) check() error {
 	if _, ok := pc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Post.updated_at"`)}
 	}
-	if _, ok := pc.mutation.AuthorID(); !ok {
-		return &ValidationError{Name: "author_id", err: errors.New(`ent: missing required field "Post.author_id"`)}
-	}
 	if len(pc.mutation.AuthorIDs()) == 0 {
 		return &ValidationError{Name: "author", err: errors.New(`ent: missing required edge "Post.author"`)}
 	}
@@ -198,7 +195,7 @@ func (pc *PostCreate) createSpec() (*Post, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.AuthorID = nodes[0]
+		_node.user_posts = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

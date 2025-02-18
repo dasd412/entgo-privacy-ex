@@ -119,10 +119,6 @@ type Post implements Node {
   """
   updatedAt: Time!
   """
-  게시물 작성자 ID
-  """
-  authorID: ID!
-  """
   게시물 작성자와의 관계
   """
   author: User!
@@ -230,13 +226,6 @@ input PostWhereInput {
   updatedAtGTE: Time
   updatedAtLT: Time
   updatedAtLTE: Time
-  """
-  author_id field predicates
-  """
-  authorID: ID
-  authorIDNEQ: ID
-  authorIDIn: [ID!]
-  authorIDNotIn: [ID!]
   """
   author edge predicates
   """

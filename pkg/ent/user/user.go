@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -37,7 +38,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "post" package.
 	PostsInverseTable = "posts"
 	// PostsColumn is the table column denoting the posts relation/edge.
-	PostsColumn = "author_id"
+	PostsColumn = "user_posts"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -60,7 +61,14 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+// Note that the variables below are initialized by the runtime
+// package on the initialization of the application. Therefore,
+// it should be imported in the main as follows:
+//
+//	import _ "privacy-ex/pkg/ent/runtime"
 var (
+	Hooks  [1]ent.Hook
+	Policy ent.Policy
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 )

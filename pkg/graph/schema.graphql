@@ -3,6 +3,9 @@ type Mutation {
     login(email: String!, password: String!): AuthPayload!
     refreshToken(refreshToken: String!): String!
 
+    updateUser(id: ID!, input: UpdateUserInput!): User! # 사용자만 수정 가능
+    deleteUser(id: ID!): Boolean! # 관리자, 사용자만 삭제 가능
+
     createPost(input: CreatePostInput!): Post! #  기본적으로 모든 사용자가 생성 가능
     updatePost(id: ID!, input: UpdatePostInput!): Post! # 사용자만 수정 가능
     deletePost(id: ID!): Boolean! # 관리자, 사용자만 삭제 가능

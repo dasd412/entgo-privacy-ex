@@ -29,6 +29,16 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, refreshToken string
 	panic(fmt.Errorf("not implemented: RefreshToken - refreshToken"))
 }
 
+// UpdateUser is the resolver for the updateUser field.
+func (r *mutationResolver) UpdateUser(ctx context.Context, id int, input ent.UpdateUserInput) (*ent.User, error) {
+	panic(fmt.Errorf("not implemented: UpdateUser - updateUser"))
+}
+
+// DeleteUser is the resolver for the deleteUser field.
+func (r *mutationResolver) DeleteUser(ctx context.Context, id int) (bool, error) {
+	panic(fmt.Errorf("not implemented: DeleteUser - deleteUser"))
+}
+
 // CreatePost is the resolver for the createPost field.
 func (r *mutationResolver) CreatePost(ctx context.Context, input ent.CreatePostInput) (*ent.Post, error) {
 	// 기본적으로 모든 사용자가 생성 가능
