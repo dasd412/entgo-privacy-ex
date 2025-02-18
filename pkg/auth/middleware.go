@@ -5,6 +5,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"io"
 	"net/http"
+	"privacy-ex/pkg/ent/user"
 	"privacy-ex/pkg/graph/httperror"
 	"strings"
 )
@@ -107,8 +108,19 @@ func JWTMiddleware(next http.Handler) http.Handler {
 				return
 			}
 
+			role, ok := claims["role"].(string)
+
+			if !ok {
+				httperror.SetErrorResponse(w, r.Context(), &httperror.HTTPError{
+					StatusCode: http.StatusUnauthorized,
+					Message:    "Invalid token role",
+				})
+				return
+			}
+
 			// 사용자 id를 context에 저장
 			ctx := WithUserId(r.Context(), userId)
+			ctx = WithUserAuthority(ctx, NewAuthority(user.Role(role)))
 			next.ServeHTTP(w, r.WithContext(ctx))
 		},
 	)

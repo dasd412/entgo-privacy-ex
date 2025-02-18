@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"privacy-ex/pkg/ent/user"
 	"strconv"
 	"time"
 )
@@ -13,15 +14,16 @@ type JwtTokenPair struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-// JWT 비밀키 설정 (보안상 환경변수로 저장하는 것이 좋음)
+// todo JWT 비밀키 설정 (보안상 환경변수로 저장하는 것이 좋음)
 var secretKey = []byte("your_secret_key")
 var refreshSecretKey = []byte("your_refresh_secret_key")
 
-func GenerateTokenPair(userId int) (*JwtTokenPair, error) {
+func GenerateTokenPair(userId int, role user.Role) (*JwtTokenPair, error) {
 	accessClaims := jwt.MapClaims{
-		"sub": strconv.Itoa(userId),                 // 사용자 Id(subject)
-		"exp": time.Now().Add(time.Hour * 1).Unix(), // 만료시간 (1시간)
-		"iat": time.Now().Unix(),                    // 발급 시간 (IssuedAt)
+		"sub":  strconv.Itoa(userId),                 // 사용자 Id(subject)
+		"exp":  time.Now().Add(time.Hour * 1).Unix(), // 만료시간 (1시간)
+		"iat":  time.Now().Unix(),                    // 발급 시간 (IssuedAt)
+		"role": role.String(),                        // private claims로 인가 정보 추가
 	}
 
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims)
@@ -33,9 +35,10 @@ func GenerateTokenPair(userId int) (*JwtTokenPair, error) {
 	}
 
 	refreshClaims := jwt.MapClaims{
-		"sub": strconv.Itoa(userId),
-		"exp": time.Now().Add(time.Hour * 24 * 7).Unix(),
-		"iat": time.Now().Unix(),
+		"sub":  strconv.Itoa(userId),
+		"exp":  time.Now().Add(time.Hour * 24 * 7).Unix(),
+		"iat":  time.Now().Unix(),
+		"role": role.String(), // private claims로 인가 정보 추가
 	}
 
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)

@@ -17,6 +17,7 @@ type Authority interface {
 	IsAdmin() bool
 	IsOwner() bool
 	IsViewer() bool
+	HasRole(role Role) bool
 }
 
 type UserAuthority struct {
@@ -49,4 +50,8 @@ func (u UserAuthority) IsOwner() bool {
 
 func (u UserAuthority) IsViewer() bool {
 	return u.role == Viewer
+}
+
+func (u UserAuthority) HasRole(role Role) bool {
+	return u.role&role != 0
 }

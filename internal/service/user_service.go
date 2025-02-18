@@ -75,7 +75,7 @@ func (s *userService) Signup(
 		return nil, err
 	}
 
-	jwtTokenPair, err := auth.GenerateTokenPair(created.ID)
+	jwtTokenPair, err := auth.GenerateTokenPair(created.ID, created.Role)
 
 	if err != nil {
 		return nil, err
@@ -132,7 +132,8 @@ func (s *userService) Login(
 		}
 	}
 
-	jwtTokenPair, err := auth.GenerateTokenPair(found.ID)
+	jwtTokenPair, err := auth.GenerateTokenPair(found.ID, found.Role)
+
 	if err != nil {
 		return nil, err
 	}

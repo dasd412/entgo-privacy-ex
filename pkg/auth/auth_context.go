@@ -14,7 +14,7 @@ func WithUserId(ctx context.Context, userId string) context.Context {
 	return context.WithValue(ctx, userIDKey, userId)
 }
 
-func GetUserId(ctx context.Context) (int, error) {
+func UserIdFromContext(ctx context.Context) (int, error) {
 	userIdString, ok := ctx.Value(userIDKey).(string)
 
 	if !ok {
@@ -38,7 +38,7 @@ func WithUserAuthority(ctx context.Context, v Authority) context.Context {
 	return context.WithValue(ctx, userAuthorityKey, v)
 }
 
-func GetUserAuthority(ctx context.Context) Authority {
+func UserAuthorityFromContext(ctx context.Context) Authority {
 	v, _ := ctx.Value(userAuthorityKey).(Authority)
 	return v
 }
