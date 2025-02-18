@@ -81,13 +81,7 @@ func JWTMiddleware(next http.Handler) http.Handler {
 
 			tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
-			isRefresh := false
-
-			if operationName == "refreshToken" {
-				isRefresh = true
-			}
-
-			token, err := ValidateJwt(tokenString, isRefresh)
+			token, err := ValidateJwt(tokenString, false)
 
 			if err != nil {
 				httperror.SetErrorResponse(w, r.Context(), &httperror.HTTPError{

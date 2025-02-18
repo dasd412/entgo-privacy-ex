@@ -134,7 +134,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	Signup(ctx context.Context, input ent.CreateUserInput) (*graphqlmodel.AuthPayload, error)
 	Login(ctx context.Context, email string, password string) (*graphqlmodel.AuthPayload, error)
-	RefreshToken(ctx context.Context, refreshToken string) (string, error)
+	RefreshToken(ctx context.Context, refreshToken string) (*graphqlmodel.AuthPayload, error)
 	UpdateUser(ctx context.Context, id int, input ent.UpdateUserInput) (*ent.User, error)
 	DeleteUser(ctx context.Context, id int) (bool, error)
 	CreatePost(ctx context.Context, input ent.CreatePostInput) (*ent.Post, error)
@@ -1182,7 +1182,7 @@ input UserWhereInput {
 	{Name: "../schema.graphql", Input: `type Mutation {
     signup(input: CreateUserInput!): AuthPayload!
     login(email: String!, password: String!): AuthPayload!
-    refreshToken(refreshToken: String!): String!
+    refreshToken(refreshToken: String!): AuthPayload!
 
     updateUser(id: ID!, input: UpdateUserInput!): User! # 관리자, 사용자만 수정 가능
     deleteUser(id: ID!): Boolean! # 관리자, 사용자만 삭제 가능
@@ -2320,9 +2320,9 @@ func (ec *executionContext) _Mutation_refreshToken(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*graphqlmodel.AuthPayload)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNAuthPayload2ᚖprivacyᚑexᚋpkgᚋgraphᚋgenᚋgraphqlmodelᚐAuthPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_refreshToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2332,7 +2332,15 @@ func (ec *executionContext) fieldContext_Mutation_refreshToken(ctx context.Conte
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "user":
+				return ec.fieldContext_AuthPayload_user(ctx, field)
+			case "accessToken":
+				return ec.fieldContext_AuthPayload_accessToken(ctx, field)
+			case "refreshToken":
+				return ec.fieldContext_AuthPayload_refreshToken(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuthPayload", field.Name)
 		},
 	}
 	defer func() {

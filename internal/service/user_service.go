@@ -4,6 +4,7 @@ import (
 	"context"
 	"entgo.io/contrib/entgql"
 	"errors"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"privacy-ex/internal/repository"
@@ -12,6 +13,7 @@ import (
 	"privacy-ex/pkg/ent/user"
 	"privacy-ex/pkg/graph/gen/graphqlmodel"
 	"privacy-ex/pkg/httperror"
+	"strconv"
 )
 
 type (
@@ -45,6 +47,7 @@ type (
 			email string,
 			password string,
 		) (*graphqlmodel.AuthPayload, error)
+		RefreshToken(ctx context.Context, client *ent.Client, refreshToken string) (*graphqlmodel.AuthPayload, error)
 		UpdateUser(
 			ctx context.Context,
 			client *ent.Client,
@@ -177,6 +180,58 @@ func (s *userService) checkPassword(
 		[]byte(hashedPassword),
 		[]byte(plainPassword),
 	)
+}
+
+func (s *userService) RefreshToken(ctx context.Context, client *ent.Client, refreshToken string) (*graphqlmodel.AuthPayload, error) {
+	token, err := auth.ValidateJwt(refreshToken, true)
+
+	if err != nil {
+		return nil, &httperror.HTTPError{
+			StatusCode: http.StatusBadRequest,
+			Message:    "Invalid refresh token",
+		}
+	}
+
+	// Claims 가져오기
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		return nil, errors.New("invalid token claims")
+	}
+
+	// 사용자 ID 확인
+	userIdStr, ok := claims["sub"].(string)
+
+	if !ok {
+		return nil, errors.New("invalid token subject")
+	}
+
+	userId, err := strconv.Atoi(userIdStr)
+
+	if err != nil {
+		return nil, errors.New("invalid user ID format")
+	}
+
+	found, err := s.userRepository.FindOne(
+		ctx, client, func(query *ent.UserQuery) {
+			query.Where(user.IDEQ(userId))
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	jwtTokenPair, err := auth.GenerateTokenPair(found.ID, found.Role)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &graphqlmodel.AuthPayload{
+		User:         found,
+		AccessToken:  jwtTokenPair.AccessToken,
+		RefreshToken: jwtTokenPair.RefreshToken,
+	}, nil
 }
 
 func (s *userService) UpdateUser(ctx context.Context, client *ent.Client, id int, input ent.UpdateUserInput) (*ent.User, error) {

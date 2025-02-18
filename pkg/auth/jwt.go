@@ -82,5 +82,19 @@ func ValidateJwt(tokenString string, isRefresh bool) (*jwt.Token, error) {
 		return nil, errors.New("invalid token")
 	}
 
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, errors.New("invalid token claims")
+	}
+
+	exp, ok := claims["exp"].(float64)
+	if !ok {
+		return nil, errors.New("invalid expiration time")
+	}
+
+	if time.Now().Unix() > int64(exp) {
+		return nil, errors.New("token expired")
+	}
+
 	return token, nil
 }

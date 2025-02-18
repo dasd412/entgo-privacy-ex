@@ -1,7 +1,7 @@
 type Mutation {
     signup(input: CreateUserInput!): AuthPayload!
     login(email: String!, password: String!): AuthPayload!
-    refreshToken(refreshToken: String!): String!
+    refreshToken(refreshToken: String!): AuthPayload!
 
     updateUser(id: ID!, input: UpdateUserInput!): User! # 관리자, 사용자만 수정 가능
     deleteUser(id: ID!): Boolean! # 관리자, 사용자만 삭제 가능
