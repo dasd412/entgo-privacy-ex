@@ -35,6 +35,16 @@ type (
 			email string,
 			password string,
 		) (*graphqlmodel.AuthPayload, error)
+		UpdateUser(
+			ctx context.Context,
+			client *ent.Client,
+			id int,
+			input ent.UpdateUserInput,
+		) (*ent.User, error)
+		DeleteUser(ctx context.Context, client *ent.Client, id int) (
+			bool,
+			error,
+		)
 	}
 )
 
@@ -153,4 +163,20 @@ func (s *userService) checkPassword(
 		[]byte(hashedPassword),
 		[]byte(plainPassword),
 	)
+}
+
+func (s *userService) UpdateUser(ctx context.Context, client *ent.Client, id int, input ent.UpdateUserInput) (*ent.User, error) {
+	return s.userRepository.UpdateOne(ctx, client, id, input)
+}
+
+func (s *userService) DeleteUser(ctx context.Context, client *ent.Client, id int) (bool, error) {
+	var success = false
+
+	err := s.userRepository.DeleteOne(ctx, client, id)
+
+	if err == nil {
+		success = true
+	}
+
+	return success, err
 }

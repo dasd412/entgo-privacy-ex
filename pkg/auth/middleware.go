@@ -10,10 +10,6 @@ import (
 	"strings"
 )
 
-var requestData struct {
-	OperationName string `json:"operationName"`
-}
-
 // 인증이 필요 없는 API 목록
 var publicOperations = map[string]bool{
 	"signup":             true,
@@ -34,9 +30,11 @@ func JWTMiddleware(next http.Handler) http.Handler {
 				return
 			}
 
-			// 인증이 필요없는 요청이면 JWT 검증을 건너뜀
+			// 인증이 필요없는 요청이면 JWT 검증을 건너뛰고 API 이름을 ctx에 담음.
+			// rule.go의 AllowIfSignupOrLogin() 등에서 API 이름에 따라 세밀하게 조정하기 위함.
 			if publicOperations[operationName] {
-				next.ServeHTTP(w, r)
+				ctx := WithApiOperationName(r.Context(), operationName)
+				next.ServeHTTP(w, r.WithContext(ctx))
 				return
 			}
 
@@ -98,12 +96,16 @@ func JWTMiddleware(next http.Handler) http.Handler {
 				return
 			}
 
-			// 사용자 id를 context에 저장
+			// 사용자 id 및 권한을 context에 저장
 			ctx := WithUserId(r.Context(), userId)
 			ctx = WithUserAuthority(ctx, NewAuthority(user.Role(role)))
 			next.ServeHTTP(w, r.WithContext(ctx))
 		},
 	)
+}
+
+var requestData struct {
+	OperationName string `json:"operationName"`
 }
 
 func getOperationName(r *http.Request) (string, error) {

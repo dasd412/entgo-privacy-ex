@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"entgo.io/ent"
 	"entgo.io/ent/privacy"
 )
 
@@ -17,10 +16,15 @@ func DenyIfNoAuthority() privacy.QueryMutationRule {
 	})
 }
 
-func AllowIfSignupOrLogin() privacy.MutationRule {
-	return privacy.MutationRuleFunc(func(ctx context.Context, mutation ent.Mutation) error {
+func AllowIfSignupOrLogin() privacy.QueryMutationRule {
+	return privacy.ContextQueryMutationRule(func(ctx context.Context) error {
+		apiOperationName := ApiOperationNameFromContext(ctx)
 
-		return nil
+		if apiOperationName == "signup" || apiOperationName == "login" {
+			return privacy.Allow
+		}
+
+		return privacy.Skip
 	})
 }
 

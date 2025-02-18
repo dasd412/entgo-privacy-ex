@@ -52,11 +52,12 @@ func (User) Policy() ent.Policy {
 		Mutation: privacy.MutationPolicy{
 			// 회원 가입, 로그인 같은 경우는 전부 풀어놔야 함.
 			// 다른 경우에는 전부 사용자 이상만 권한이 있어야 함.
+			auth.AllowIfSignupOrLogin(),
 			auth.AllowIfAdminOrAuthor(),
 			privacy.AlwaysDenyRule(),
 		},
 		Query: privacy.QueryPolicy{
-			auth.DenyIfNoAuthority(),
+			auth.AllowIfSignupOrLogin(),
 			auth.AllowIfAdminOrAuthor(),
 			privacy.AlwaysDenyRule(),
 		},

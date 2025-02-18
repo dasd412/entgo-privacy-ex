@@ -31,12 +31,14 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, refreshToken string
 
 // UpdateUser is the resolver for the updateUser field.
 func (r *mutationResolver) UpdateUser(ctx context.Context, id int, input ent.UpdateUserInput) (*ent.User, error) {
-	panic(fmt.Errorf("not implemented: UpdateUser - updateUser"))
+	entClient := ent.FromContext(ctx)
+	return r.userService.UpdateUser(ctx, entClient, id, input)
 }
 
 // DeleteUser is the resolver for the deleteUser field.
 func (r *mutationResolver) DeleteUser(ctx context.Context, id int) (bool, error) {
-	panic(fmt.Errorf("not implemented: DeleteUser - deleteUser"))
+	entClient := ent.FromContext(ctx)
+	return r.userService.DeleteUser(ctx, entClient, id)
 }
 
 // CreatePost is the resolver for the createPost field.
