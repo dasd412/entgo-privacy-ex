@@ -421,7 +421,8 @@ UserRole is enum for the field role
 """
 enum UserRole @goModel(model: "privacy-ex/pkg/ent/user.Role") {
   admin
-  viewer
+  author
+  guest
 }
 """
 UserWhereInput is used for filtering User objects.

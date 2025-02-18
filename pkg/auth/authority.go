@@ -9,12 +9,14 @@ type Role int
 const (
 	_Role = 1 << iota
 	Admin
-	Viewer
+	Author
+	Guest
 )
 
 type Authority interface {
 	IsAdmin() bool
-	IsViewer() bool
+	IsAuthor() bool
+	IsGuest() bool
 	HasRole(role Role) bool
 }
 
@@ -27,9 +29,13 @@ func NewAuthority(role user.Role) UserAuthority {
 		return UserAuthority{
 			role: Admin,
 		}
+	} else if role == user.RoleAuthor {
+		return UserAuthority{
+			role: Author,
+		}
 	} else {
 		return UserAuthority{
-			role: Viewer,
+			role: Guest,
 		}
 	}
 }
@@ -38,8 +44,12 @@ func (u UserAuthority) IsAdmin() bool {
 	return u.role == Admin
 }
 
-func (u UserAuthority) IsViewer() bool {
-	return u.role == Viewer
+func (u UserAuthority) IsAuthor() bool {
+	return u.role == Author
+}
+
+func (u UserAuthority) IsGuest() bool {
+	return u.role == Guest
 }
 
 func (u UserAuthority) HasRole(role Role) bool {

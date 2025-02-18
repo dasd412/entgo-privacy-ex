@@ -1075,7 +1075,8 @@ UserRole is enum for the field role
 """
 enum UserRole @goModel(model: "privacy-ex/pkg/ent/user.Role") {
   admin
-  viewer
+  author
+  guest
 }
 """
 UserWhereInput is used for filtering User objects.
@@ -1175,14 +1176,13 @@ input UserWhereInput {
     refreshToken(refreshToken: String!): String!
 
     createPost(input: CreatePostInput!): Post! #  기본적으로 모든 사용자가 생성 가능
-    updatePost(id: ID!, input: UpdatePostInput!): Post! # 작성자만 수정 가능
-    deletePost(id: ID!): Boolean! # 관리자, 작성자만 삭제 가능
+    updatePost(id: ID!, input: UpdatePostInput!): Post! # 사용자만 수정 가능
+    deletePost(id: ID!): Boolean! # 관리자, 사용자만 삭제 가능
 }
 
 extend type Query {
-    user(id: ID!): User!
+    user(id: ID!): User! # 기본적으로 모든 사용자가 조회 가능
     post(id:ID!): Post!  # 기본적으로 모든 사용자가 조회 가능
-    # posts는 기본적으로 모든 사용자가 조회 가능, users는 관리자만 조회 가능
 }
 
 type AuthPayload{
