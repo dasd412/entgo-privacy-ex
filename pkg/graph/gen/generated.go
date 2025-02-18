@@ -1075,7 +1075,6 @@ UserRole is enum for the field role
 """
 enum UserRole @goModel(model: "privacy-ex/pkg/ent/user.Role") {
   admin
-  owner
   viewer
 }
 """
@@ -1183,6 +1182,7 @@ input UserWhereInput {
 extend type Query {
     user(id: ID!): User!
     post(id:ID!): Post!  # 기본적으로 모든 사용자가 조회 가능
+    # posts는 기본적으로 모든 사용자가 조회 가능, users는 관리자만 조회 가능
 }
 
 type AuthPayload{

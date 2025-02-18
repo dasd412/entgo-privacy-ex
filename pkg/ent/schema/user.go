@@ -29,7 +29,7 @@ func (User) Fields() []ent.Field {
 			Default(time.Now).
 			Immutable(),
 		field.Enum("role").
-			Values("admin", "owner", "viewer").
+			Values("admin", "viewer").
 			Comment("인가 권한"),
 	}
 }
