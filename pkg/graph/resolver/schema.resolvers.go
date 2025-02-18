@@ -26,6 +26,9 @@ func (r *mutationResolver) Login(ctx context.Context, email string, password str
 
 // RefreshToken is the resolver for the refreshToken field.
 func (r *mutationResolver) RefreshToken(ctx context.Context, refreshToken string) (string, error) {
+	/*
+		JWTMiddleware가 인터셉트해서 리프레시토큰을 발급함. 이 API는 지우면 안 됨.
+	*/
 	panic(fmt.Errorf("not implemented: RefreshToken - refreshToken"))
 }
 

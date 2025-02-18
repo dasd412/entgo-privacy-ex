@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"entgo.io/contrib/entgql"
 	"privacy-ex/pkg/ent"
 )
 
@@ -15,6 +16,15 @@ type (
 			client *ent.Client,
 			opts ...func(query *ent.UserQuery),
 		) (*ent.User, error)
+		Paginate(
+			ctx context.Context,
+			client *ent.Client,
+			after *entgql.Cursor[int],
+			first *int,
+			before *entgql.Cursor[int],
+			last *int,
+			where *ent.UserWhereInput,
+		) (*ent.UserConnection, error)
 		CreateOne(
 			ctx context.Context,
 			client *ent.Client,
@@ -47,6 +57,18 @@ func (u *userRepository) FindOne(
 	}
 
 	return query.Only(ctx)
+}
+
+func (u *userRepository) Paginate(ctx context.Context, client *ent.Client, after *entgql.Cursor[int], first *int, before *entgql.Cursor[int], last *int, where *ent.UserWhereInput) (*ent.UserConnection, error) {
+	return client.User.Query().
+		Paginate(
+			ctx,
+			after,
+			first,
+			before,
+			last,
+			ent.WithUserFilter(where.Filter),
+		)
 }
 
 func (u *userRepository) CreateOne(

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"entgo.io/contrib/entgql"
 	"privacy-ex/internal/repository"
 	"privacy-ex/pkg/ent"
 	"privacy-ex/pkg/ent/post"
@@ -18,6 +19,15 @@ type (
 			client *ent.Client,
 			id int,
 		) (*ent.Post, error)
+		Paginate(
+			ctx context.Context,
+			client *ent.Client,
+			after *entgql.Cursor[int],
+			first *int,
+			before *entgql.Cursor[int],
+			last *int,
+			where *ent.PostWhereInput,
+		) (*ent.PostConnection, error)
 		CreatePost(
 			ctx context.Context,
 			client *ent.Client,
@@ -41,6 +51,7 @@ func NewPostService(postRepository repository.PostRepository) PostService {
 		postRepository: postRepository,
 	}
 }
+
 func (p *postService) FindPost(
 	ctx context.Context,
 	client *ent.Client,
@@ -51,6 +62,10 @@ func (p *postService) FindPost(
 			query.Where(post.ID(id))
 		},
 	)
+}
+
+func (p *postService) Paginate(ctx context.Context, client *ent.Client, after *entgql.Cursor[int], first *int, before *entgql.Cursor[int], last *int, where *ent.PostWhereInput) (*ent.PostConnection, error) {
+	return p.postRepository.Paginate(ctx, client, after, first, before, last, where)
 }
 
 func (p *postService) CreatePost(

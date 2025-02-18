@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"entgo.io/contrib/entgql"
 	"errors"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
@@ -24,6 +25,15 @@ type (
 			client *ent.Client,
 			id int,
 		) (*ent.User, error)
+		Paginate(
+			ctx context.Context,
+			client *ent.Client,
+			after *entgql.Cursor[int],
+			first *int,
+			before *entgql.Cursor[int],
+			last *int,
+			where *ent.UserWhereInput,
+		) (*ent.UserConnection, error)
 		Signup(
 			ctx context.Context,
 			client *ent.Client,
@@ -64,6 +74,10 @@ func (s *userService) FindUser(
 			query.Where(user.ID(id))
 		},
 	)
+}
+
+func (s *userService) Paginate(ctx context.Context, client *ent.Client, after *entgql.Cursor[int], first *int, before *entgql.Cursor[int], last *int, where *ent.UserWhereInput) (*ent.UserConnection, error) {
+	return s.userRepository.Paginate(ctx, client, after, first, before, last, where)
 }
 
 func (s *userService) Signup(

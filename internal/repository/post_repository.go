@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"entgo.io/contrib/entgql"
 	"privacy-ex/pkg/ent"
 )
 
@@ -15,6 +16,15 @@ type (
 			client *ent.Client,
 			opts ...func(query *ent.PostQuery),
 		) (*ent.Post, error)
+		Paginate(
+			ctx context.Context,
+			client *ent.Client,
+			after *entgql.Cursor[int],
+			first *int,
+			before *entgql.Cursor[int],
+			last *int,
+			where *ent.PostWhereInput,
+		) (*ent.PostConnection, error)
 		CreateOne(
 			ctx context.Context,
 			client *ent.Client,
@@ -33,6 +43,7 @@ type (
 func NewPostRepository() PostRepository {
 	return &postRepository{}
 }
+
 func (p *postRepository) FindOne(
 	ctx context.Context,
 	client *ent.Client,
@@ -57,6 +68,18 @@ func (p *postRepository) CreateOne(
 		Create().
 		SetInput(input).
 		Save(ctx)
+}
+
+func (p *postRepository) Paginate(ctx context.Context, client *ent.Client, after *entgql.Cursor[int], first *int, before *entgql.Cursor[int], last *int, where *ent.PostWhereInput) (*ent.PostConnection, error) {
+	return client.Post.Query().
+		Paginate(
+			ctx,
+			after,
+			first,
+			before,
+			last,
+			ent.WithPostFilter(where.Filter),
+		)
 }
 
 func (p *postRepository) UpdateOne(
